@@ -1,12 +1,19 @@
-# Hxrizxn Web (coming soon)
+# Hxrizxn Web
 
-The Next.js decision cockpit is scaffolded in the monorepo but not yet implemented.
+Next.js 16 App Router frontend for the HORIZON-X decision cockpit.
 
-Planned stack:
+Implemented:
 
-- Next.js + TypeScript
-- Tailwind CSS + shadcn/ui
-- React Flow (scenario lattice)
-- AG-UI streaming client
+- Landing and intake flow
+- Animated agent loading state
+- React Flow scenario lattice and agent trace graph
+- ECharts radar, heatmap, impact stack, and optionality quadrant
+- Scenario comparison, ripple effects, experiment plan, and decision memo screens
+- Deterministic demo fallback when the API or cloud credentials are unavailable
 
-Until this workspace ships, use the API directly at http://localhost:8000/docs or run analysis via `scripts/run_evals.py`.
+Run locally:
+
+```bash
+npm install
+npm --workspace apps/web run dev
+```

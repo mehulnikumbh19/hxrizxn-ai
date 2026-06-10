@@ -1,0 +1,54 @@
+name: deploy-azure
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Ensure resource group
+        run: |
+          az group create \
+            --name "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+            --location "${{ vars.AZURE_LOCATION || 'eastus' }}"
+      - name: Ensure ACR
+        run: |
+          az acr show --name "${{ secrets.AZURE_ACR_NAME }}" --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" >/dev/null 2>&1 || \
+          az acr create \
+            --name "${{ secrets.AZURE_ACR_NAME }}" \
+            --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+            --sku Basic \
+            --admin-enabled false
+      - name: Build images in ACR
+        run: |
+          az acr build --registry "${{ secrets.AZURE_ACR_NAME }}" --image hxrizxn-api:${{ github.sha }} apps/api
+          az acr build --registry "${{ secrets.AZURE_ACR_NAME }}" --image hxrizxn-web:${{ github.sha }} apps/web
+      - name: Deploy infra and apps
+        run: |
+          LOGIN_SERVER=$(az acr show --name "${{ secrets.AZURE_ACR_NAME }}" --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" --query loginServer -o tsv)
+          az deployment group create \
+            --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+            --template-file infra/bicep/main.bicep \
+            --parameters \
+              location="${{ vars.AZURE_LOCATION || 'eastus' }}" \
+              environmentName="hxrizxn" \
+              acrName="${{ secrets.AZURE_ACR_NAME }}" \
+              backendImage="$LOGIN_SERVER/hxrizxn-api:${{ github.sha }}" \
+              frontendImage="$LOGIN_SERVER/hxrizxn-web:${{ github.sha }}" \
+              postgresAdminPassword="${{ secrets.POSTGRES_ADMIN_PASSWORD }}" \
+              foundryIqEndpoint="${{ secrets.FOUNDRY_IQ_ENDPOINT }}" \
+              foundryIqApiKey="${{ secrets.FOUNDRY_IQ_API_KEY }}" \
+              azureOpenAiEndpoint="${{ secrets.AZURE_OPENAI_ENDPOINT }}" \
+              azureOpenAiApiKey="${{ secrets.AZURE_OPENAI_API_KEY }}" \
+              azureOpenAiDeployment="${{ secrets.AZURE_OPENAI_DEPLOYMENT }}"

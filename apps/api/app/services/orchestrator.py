@@ -17,6 +17,9 @@ from app.agents.ripple import map_ripple_effects
 from app.agents.risk import identify_risks
 from app.agents.scenario_lattice import build_scenarios
 from app.agents.verifier import verify_outputs
+from app.agents.grounding import retrieve_evidence
+from app.agents.assumption import mine_assumptions
+from app.agents.future_self import generate_future_self_postcards
 from app.core.config import get_settings
 from app.db.models import (
     AgentRunDB,
@@ -111,14 +114,39 @@ class HorizonXWorkflow:
             time_horizon_months=case.time_horizon_months,
             dependencies=case.structured_context_json.get("dependencies", []),
         )
+        
+        # 1. Decision Framing Agent
         framed = _run_agent(
             db,
             case.id,
             "Decision Framing Agent",
-            {"horizon_x": "H/O", "framework": self.framework.metadata()},
+            {"horizon_x": "H", "framework": self.framework.metadata()},
             lambda: frame_decision(intake, case.id, self.knowledge),
         )
         self._persist_options(db, case.id, framed)
+
+        # 2. Evidence Grounding Agent
+        evidence = _run_agent(
+            db,
+            case.id,
+            "Evidence Grounding Agent",
+            {"horizon_x": "O", "framed_decision": framed.model_dump()},
+            lambda: retrieve_evidence(framed, self.knowledge),
+        )
+        framed.evidence = evidence
+
+        # 3. Assumption Miner Agent
+        assumptions, missing_info = _run_agent(
+            db,
+            case.id,
+            "Assumption Miner Agent",
+            {"horizon_x": "O", "evidence_count": len(evidence)},
+            lambda: mine_assumptions(framed, evidence),
+        )
+        framed.assumptions = assumptions
+        framed.missing_information = missing_info
+
+        # 4. Scenario Lattice Agent
         scenarios = _run_agent(
             db,
             case.id,
@@ -126,6 +154,8 @@ class HorizonXWorkflow:
             {"horizon_x": "R", "framed_decision": framed.model_dump()},
             lambda: build_scenarios(framed, self.knowledge),
         )
+
+        # 5. Ripple Effects Agent
         impacts = _run_agent(
             db,
             case.id,
@@ -133,27 +163,39 @@ class HorizonXWorkflow:
             {"horizon_x": "I", "scenario_count": len(scenarios)},
             lambda: map_ripple_effects(framed, scenarios),
         )
+
+        # 6. Regret and Reversibility Agent
+        # Runs score_optionality and assess_regret under a single agent representation
+        optionality, regret = _run_agent(
+            db,
+            case.id,
+            "Regret and Reversibility Agent",
+            {"horizon_x": "O", "scenario_count": len(scenarios)},
+            lambda: (
+                score_optionality(framed, scenarios),
+                assess_regret(framed, scenarios, generate_future_self_postcards(framed, scenarios)),
+            ),
+        )
+
+        # 7. Black Swan Agent
         risks = _run_agent(
             db,
             case.id,
-            "Risk and Black Swan Agent",
+            "Black Swan Agent",
             {"horizon_x": "Z", "scenario_count": len(scenarios)},
             lambda: identify_risks(framed, scenarios),
         )
-        optionality = _run_agent(
+
+        # 8. Future Self Agent
+        postcards = _run_agent(
             db,
             case.id,
-            "Optionality and Reversibility Agent",
-            {"horizon_x": "O", "scenario_count": len(scenarios)},
-            lambda: score_optionality(framed, scenarios),
-        )
-        regret = _run_agent(
-            db,
-            case.id,
-            "Regret and Future Self Agent",
+            "Future Self Agent",
             {"horizon_x": "N/X", "scenario_count": len(scenarios)},
-            lambda: assess_regret(framed, scenarios),
+            lambda: generate_future_self_postcards(framed, scenarios),
         )
+
+        # 9. Experiment Design Agent
         experiment = _run_agent(
             db,
             case.id,
@@ -161,15 +203,19 @@ class HorizonXWorkflow:
             {"horizon_x": "N", "risk_count": len(risks)},
             lambda: design_experiment(framed, risks),
         )
+
+        # 10. Safety and Boundary Agent
         verification = _run_agent(
             db,
             case.id,
-            "Verifier and Safety Agent",
+            "Safety and Boundary Agent",
             {"horizon_x": "X", "safety_flags": [flag.model_dump() for flag in framed.high_stakes_flags]},
             lambda: verify_outputs(framed, scenarios, impacts, risks, experiment),
         )
         if not verification.approved:
             framed.missing_information.extend(verification["confidence_notes"])
+
+        # 11. Recommendation Composer Agent
         memo = _run_agent(
             db,
             case.id,
@@ -177,6 +223,7 @@ class HorizonXWorkflow:
             {"horizon_x": "X", "verification": dict(verification)},
             lambda: compose_memo(framed, scenarios, risks, optionality, regret, experiment),
         )
+
         self._persist_analysis(db, case, scenarios, impacts, risks, experiment, memo)
         trace = self.trace_for_case(db, case.id)
         return AnalysisPackage(

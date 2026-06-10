@@ -15,18 +15,17 @@ TEST_DB = API_ROOT / "test-hxrizxn.db"
 os.environ["DATABASE_URL"] = f"sqlite:///{TEST_DB}"
 os.environ["DEMO_MODE"] = "true"
 
-from app.db.session import init_db  # noqa: E402
+from app.db.base import Base  # noqa: E402
+from app.db.session import engine  # noqa: E402
 from app.main import app  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
 def clean_db():
-    if TEST_DB.exists():
-        TEST_DB.unlink()
-    init_db()
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
     yield
-    if TEST_DB.exists():
-        TEST_DB.unlink()
+    Base.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture
@@ -49,4 +48,3 @@ def sample_payload() -> dict:
         "money_limit_months": 8,
         "time_horizon_months": 18,
     }
-

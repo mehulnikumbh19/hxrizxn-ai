@@ -1,0 +1,45 @@
+name: build-push-acr
+
+on:
+  workflow_dispatch:
+    inputs:
+      acr_name:
+        description: Azure Container Registry name
+        required: true
+      resource_group:
+        description: Azure resource group
+        required: true
+        default: rg-hxrizxn-demo
+      image_tag:
+        description: Image tag to build and push
+        required: false
+        default: latest
+
+permissions:
+  contents: read
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Log in to ACR
+        run: az acr login --name "${{ inputs.acr_name }}"
+
+      - name: Build and push API image
+        run: |
+          LOGIN_SERVER=$(az acr show --name "${{ inputs.acr_name }}" --resource-group "${{ inputs.resource_group }}" --query loginServer -o tsv)
+          docker build -t "$LOGIN_SERVER/hxrizxn-api:${{ inputs.image_tag }}" apps/api
+          docker push "$LOGIN_SERVER/hxrizxn-api:${{ inputs.image_tag }}"
+
+      - name: Build and push web image
+        run: |
+          LOGIN_SERVER=$(az acr show --name "${{ inputs.acr_name }}" --resource-group "${{ inputs.resource_group }}" --query loginServer -o tsv)
+          docker build -t "$LOGIN_SERVER/hxrizxn-web:${{ inputs.image_tag }}" apps/web
+          docker push "$LOGIN_SERVER/hxrizxn-web:${{ inputs.image_tag }}"

@@ -1,0 +1,76 @@
+{
+  "$defs": {
+    "Citation": {
+      "properties": {
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "snippet": {
+          "title": "Snippet",
+          "type": "string"
+        },
+        "confidence": {
+          "default": "medium",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "very_high"
+          ],
+          "title": "Confidence",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "source",
+        "snippet"
+      ],
+      "title": "Citation",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "recommendation_summary": {
+      "title": "Recommendation Summary",
+      "type": "string"
+    },
+    "rationale": {
+      "title": "Rationale",
+      "type": "string"
+    },
+    "uncertainty_notes": {
+      "title": "Uncertainty Notes",
+      "type": "string"
+    },
+    "safer_next_move": {
+      "title": "Safer Next Move",
+      "type": "string"
+    },
+    "disclaimers": {
+      "title": "Disclaimers",
+      "type": "string"
+    },
+    "citations": {
+      "items": {
+        "$ref": "#/$defs/Citation"
+      },
+      "title": "Citations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "recommendation_summary",
+    "rationale",
+    "uncertainty_notes",
+    "safer_next_move",
+    "disclaimers"
+  ],
+  "title": "DecisionMemo",
+  "type": "object"
+}

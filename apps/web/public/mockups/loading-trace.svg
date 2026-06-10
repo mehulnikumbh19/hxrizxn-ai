@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-label="Loading and agent trace mockup">
+  <rect width="1200" height="720" fill="#080912"/>
+  <text x="80" y="100" fill="#fff" font-family="Arial" font-size="42" font-weight="700">HORIZON-X analysis running</text>
+  <g fill="#121627" stroke="#50e3c2">
+    <rect x="80" y="160" width="300" height="100" rx="8"/>
+    <rect x="450" y="160" width="300" height="100" rx="8"/>
+    <rect x="820" y="160" width="300" height="100" rx="8"/>
+  </g>
+  <g fill="#121627" stroke="#9b5cff">
+    <rect x="80" y="340" width="300" height="100" rx="8"/>
+    <rect x="450" y="340" width="300" height="100" rx="8"/>
+    <rect x="820" y="340" width="300" height="100" rx="8"/>
+  </g>
+  <path d="M380 210 H450 M750 210 H820 M230 260 V340 M600 260 V340 M970 260 V340" stroke="#cbd5e1" stroke-width="3"/>
+</svg>
+

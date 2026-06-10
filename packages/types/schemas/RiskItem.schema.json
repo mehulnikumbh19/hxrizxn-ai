@@ -1,0 +1,73 @@
+{
+  "properties": {
+    "scenario_key": {
+      "title": "Scenario Key",
+      "type": "string"
+    },
+    "risk_name": {
+      "title": "Risk Name",
+      "type": "string"
+    },
+    "risk_type": {
+      "enum": [
+        "common",
+        "hidden",
+        "black_swan",
+        "safety",
+        "execution"
+      ],
+      "title": "Risk Type",
+      "type": "string"
+    },
+    "likelihood_band": {
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "very_high"
+      ],
+      "title": "Likelihood Band",
+      "type": "string"
+    },
+    "severity_band": {
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "very_high"
+      ],
+      "title": "Severity Band",
+      "type": "string"
+    },
+    "detectability_band": {
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "very_high"
+      ],
+      "title": "Detectability Band",
+      "type": "string"
+    },
+    "mitigation": {
+      "title": "Mitigation",
+      "type": "string"
+    },
+    "black_swan": {
+      "default": false,
+      "title": "Black Swan",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "scenario_key",
+    "risk_name",
+    "risk_type",
+    "likelihood_band",
+    "severity_band",
+    "detectability_band",
+    "mitigation"
+  ],
+  "title": "RiskItem",
+  "type": "object"
+}

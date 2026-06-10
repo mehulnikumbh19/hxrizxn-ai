@@ -1,0 +1,59 @@
+{
+  "properties": {
+    "scenario_key": {
+      "title": "Scenario Key",
+      "type": "string"
+    },
+    "domain": {
+      "enum": [
+        "finances",
+        "career",
+        "health_energy",
+        "relationships",
+        "location_lifestyle",
+        "learning_identity"
+      ],
+      "title": "Domain",
+      "type": "string"
+    },
+    "order_level": {
+      "enum": [
+        1,
+        2,
+        3
+      ],
+      "title": "Order Level",
+      "type": "integer"
+    },
+    "impact_direction": {
+      "enum": [
+        "positive",
+        "negative",
+        "mixed",
+        "neutral"
+      ],
+      "title": "Impact Direction",
+      "type": "string"
+    },
+    "severity": {
+      "maximum": 5,
+      "minimum": 1,
+      "title": "Severity",
+      "type": "integer"
+    },
+    "explanation": {
+      "title": "Explanation",
+      "type": "string"
+    }
+  },
+  "required": [
+    "scenario_key",
+    "domain",
+    "order_level",
+    "impact_direction",
+    "severity",
+    "explanation"
+  ],
+  "title": "ScenarioImpact",
+  "type": "object"
+}

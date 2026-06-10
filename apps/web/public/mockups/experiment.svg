@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-label="Experiment plan mockup">
+  <rect width="1200" height="720" fill="#080912"/>
+  <text x="80" y="90" fill="#fff" font-family="Arial" font-size="42" font-weight="700">30-day reversible validation sprint</text>
+  <rect x="80" y="140" width="500" height="450" rx="8" fill="#121627" stroke="#50e3c2"/>
+  <rect x="640" y="140" width="480" height="130" rx="8" fill="#121627" stroke="#334155"/>
+  <rect x="640" y="310" width="480" height="130" rx="8" fill="#121627" stroke="#334155"/>
+  <rect x="640" y="480" width="480" height="130" rx="8" fill="#121627" stroke="#334155"/>
+  <text x="120" y="210" fill="#cbd5e1" font-family="Arial" font-size="26">Steps</text>
+  <text x="680" y="205" fill="#50e3c2" font-family="Arial" font-size="24">Success criteria</text>
+  <text x="680" y="375" fill="#ff6b8a" font-family="Arial" font-size="24">Stop conditions</text>
+  <text x="680" y="545" fill="#f4b95f" font-family="Arial" font-size="24">What you learn</text>
+</svg>
+

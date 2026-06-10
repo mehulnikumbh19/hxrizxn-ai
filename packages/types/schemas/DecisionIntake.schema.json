@@ -1,0 +1,94 @@
+{
+  "properties": {
+    "title": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Title"
+    },
+    "decision_type": {
+      "default": "life",
+      "title": "Decision Type",
+      "type": "string"
+    },
+    "raw_prompt": {
+      "minLength": 12,
+      "title": "Raw Prompt",
+      "type": "string"
+    },
+    "goals": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Goals",
+      "type": "array"
+    },
+    "fears": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Fears",
+      "type": "array"
+    },
+    "constraints": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Constraints",
+      "type": "array"
+    },
+    "money_limit_months": {
+      "anyOf": [
+        {
+          "maximum": 240,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Money Limit Months"
+    },
+    "time_horizon_months": {
+      "anyOf": [
+        {
+          "maximum": 240,
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": 12,
+      "title": "Time Horizon Months"
+    },
+    "dependencies": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Dependencies",
+      "type": "array"
+    },
+    "uploaded_document_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Uploaded Document Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "raw_prompt"
+  ],
+  "title": "DecisionIntake",
+  "type": "object"
+}

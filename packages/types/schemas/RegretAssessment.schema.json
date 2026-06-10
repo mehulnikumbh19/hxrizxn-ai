@@ -1,0 +1,45 @@
+{
+  "properties": {
+    "scenario_key": {
+      "title": "Scenario Key",
+      "type": "string"
+    },
+    "likely_regret_types": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Likely Regret Types",
+      "type": "array"
+    },
+    "missed_opportunity_regret": {
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Missed Opportunity Regret",
+      "type": "integer"
+    },
+    "action_regret": {
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Action Regret",
+      "type": "integer"
+    },
+    "identity_alignment_notes": {
+      "title": "Identity Alignment Notes",
+      "type": "string"
+    },
+    "future_self_postcard": {
+      "title": "Future Self Postcard",
+      "type": "string"
+    }
+  },
+  "required": [
+    "scenario_key",
+    "likely_regret_types",
+    "missed_opportunity_regret",
+    "action_regret",
+    "identity_alignment_notes",
+    "future_self_postcard"
+  ],
+  "title": "RegretAssessment",
+  "type": "object"
+}

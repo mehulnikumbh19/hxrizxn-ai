@@ -1,0 +1,185 @@
+{
+  "$defs": {
+    "Citation": {
+      "properties": {
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "snippet": {
+          "title": "Snippet",
+          "type": "string"
+        },
+        "confidence": {
+          "default": "medium",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "very_high"
+          ],
+          "title": "Confidence",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "source",
+        "snippet"
+      ],
+      "title": "Citation",
+      "type": "object"
+    },
+    "DecisionOption": {
+      "properties": {
+        "option_key": {
+          "title": "Option Key",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "option_key",
+        "label",
+        "description"
+      ],
+      "title": "DecisionOption",
+      "type": "object"
+    },
+    "SafetyFlag": {
+      "properties": {
+        "domain": {
+          "title": "Domain",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "caution",
+            "escalate",
+            "block"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "recommended_boundary": {
+          "title": "Recommended Boundary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "domain",
+        "severity",
+        "message",
+        "recommended_boundary"
+      ],
+      "title": "SafetyFlag",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "case_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Case Id"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "decision_type": {
+      "title": "Decision Type",
+      "type": "string"
+    },
+    "goals": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Goals",
+      "type": "array"
+    },
+    "fears": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Fears",
+      "type": "array"
+    },
+    "constraints": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Constraints",
+      "type": "array"
+    },
+    "assumptions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Assumptions",
+      "type": "array"
+    },
+    "missing_information": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Missing Information",
+      "type": "array"
+    },
+    "candidate_options": {
+      "items": {
+        "$ref": "#/$defs/DecisionOption"
+      },
+      "title": "Candidate Options",
+      "type": "array"
+    },
+    "high_stakes_flags": {
+      "items": {
+        "$ref": "#/$defs/SafetyFlag"
+      },
+      "title": "High Stakes Flags",
+      "type": "array"
+    },
+    "evidence": {
+      "items": {
+        "$ref": "#/$defs/Citation"
+      },
+      "title": "Evidence",
+      "type": "array"
+    }
+  },
+  "required": [
+    "title",
+    "decision_type",
+    "goals",
+    "fears",
+    "constraints",
+    "assumptions",
+    "missing_information",
+    "candidate_options"
+  ],
+  "title": "FramedDecision",
+  "type": "object"
+}

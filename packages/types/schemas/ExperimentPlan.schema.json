@@ -1,0 +1,62 @@
+{
+  "properties": {
+    "plan_name": {
+      "title": "Plan Name",
+      "type": "string"
+    },
+    "hypothesis": {
+      "title": "Hypothesis",
+      "type": "string"
+    },
+    "duration_days": {
+      "maximum": 180,
+      "minimum": 1,
+      "title": "Duration Days",
+      "type": "integer"
+    },
+    "reversible": {
+      "title": "Reversible",
+      "type": "boolean"
+    },
+    "steps": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Steps",
+      "type": "array"
+    },
+    "success_criteria": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Success Criteria",
+      "type": "array"
+    },
+    "stop_conditions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Stop Conditions",
+      "type": "array"
+    },
+    "what_you_will_learn": {
+      "items": {
+        "type": "string"
+      },
+      "title": "What You Will Learn",
+      "type": "array"
+    }
+  },
+  "required": [
+    "plan_name",
+    "hypothesis",
+    "duration_days",
+    "reversible",
+    "steps",
+    "success_criteria",
+    "stop_conditions",
+    "what_you_will_learn"
+  ],
+  "title": "ExperimentPlan",
+  "type": "object"
+}

@@ -1,0 +1,52 @@
+{
+  "properties": {
+    "agent_name": {
+      "title": "Agent Name",
+      "type": "string"
+    },
+    "status": {
+      "title": "Status",
+      "type": "string"
+    },
+    "input_summary": {
+      "title": "Input Summary",
+      "type": "string"
+    },
+    "output_summary": {
+      "title": "Output Summary",
+      "type": "string"
+    },
+    "started_at": {
+      "format": "date-time",
+      "title": "Started At",
+      "type": "string"
+    },
+    "completed_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Completed At"
+    },
+    "latency_ms": {
+      "title": "Latency Ms",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "agent_name",
+    "status",
+    "input_summary",
+    "output_summary",
+    "started_at",
+    "latency_ms"
+  ],
+  "title": "AgentTraceView",
+  "type": "object"
+}

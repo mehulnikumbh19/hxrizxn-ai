@@ -1,0 +1,40 @@
+{
+  "properties": {
+    "scenario_key": {
+      "title": "Scenario Key",
+      "type": "string"
+    },
+    "reversibility_score": {
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Reversibility Score",
+      "type": "integer"
+    },
+    "optionality_score": {
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Optionality Score",
+      "type": "integer"
+    },
+    "lock_in_explanation": {
+      "title": "Lock In Explanation",
+      "type": "string"
+    },
+    "option_preservation_moves": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Option Preservation Moves",
+      "type": "array"
+    }
+  },
+  "required": [
+    "scenario_key",
+    "reversibility_score",
+    "optionality_score",
+    "lock_in_explanation",
+    "option_preservation_moves"
+  ],
+  "title": "OptionalityAssessment",
+  "type": "object"
+}

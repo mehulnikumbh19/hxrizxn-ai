@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-label="Final decision memo mockup">
+  <rect width="1200" height="720" fill="#080912"/>
+  <rect x="180" y="80" width="840" height="560" rx="8" fill="#121627" stroke="#334155"/>
+  <text x="240" y="150" fill="#fff" font-family="Arial" font-size="40" font-weight="700">Decision Memo</text>
+  <text x="240" y="215" fill="#50e3c2" font-family="Arial" font-size="28">Proceed via experiment</text>
+  <rect x="240" y="260" width="720" height="70" rx="8" fill="#182037"/>
+  <rect x="240" y="360" width="330" height="130" rx="8" fill="#182037"/>
+  <rect x="630" y="360" width="330" height="130" rx="8" fill="#182037"/>
+  <rect x="240" y="530" width="250" height="56" rx="8" fill="#ffffff"/>
+  <text x="278" y="565" fill="#0f172a" font-family="Arial" font-size="18" font-weight="700">Export report</text>
+</svg>
+

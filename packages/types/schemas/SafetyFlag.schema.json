@@ -1,0 +1,34 @@
+{
+  "properties": {
+    "domain": {
+      "title": "Domain",
+      "type": "string"
+    },
+    "severity": {
+      "enum": [
+        "info",
+        "caution",
+        "escalate",
+        "block"
+      ],
+      "title": "Severity",
+      "type": "string"
+    },
+    "message": {
+      "title": "Message",
+      "type": "string"
+    },
+    "recommended_boundary": {
+      "title": "Recommended Boundary",
+      "type": "string"
+    }
+  },
+  "required": [
+    "domain",
+    "severity",
+    "message",
+    "recommended_boundary"
+  ],
+  "title": "SafetyFlag",
+  "type": "object"
+}

@@ -1,0 +1,129 @@
+{
+  "$defs": {
+    "Citation": {
+      "properties": {
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "snippet": {
+          "title": "Snippet",
+          "type": "string"
+        },
+        "confidence": {
+          "default": "medium",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "very_high"
+          ],
+          "title": "Confidence",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "source",
+        "snippet"
+      ],
+      "title": "Citation",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "scenario_key": {
+      "enum": [
+        "optimistic",
+        "base",
+        "stress"
+      ],
+      "title": "Scenario Key",
+      "type": "string"
+    },
+    "scenario_name": {
+      "title": "Scenario Name",
+      "type": "string"
+    },
+    "narrative": {
+      "title": "Narrative",
+      "type": "string"
+    },
+    "branching_logic": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Branching Logic",
+      "type": "array"
+    },
+    "confidence_label": {
+      "title": "Confidence Label",
+      "type": "string"
+    },
+    "probability_band": {
+      "title": "Probability Band",
+      "type": "string"
+    },
+    "time_horizon": {
+      "title": "Time Horizon",
+      "type": "string"
+    },
+    "upside_score": {
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Upside Score",
+      "type": "integer"
+    },
+    "downside_score": {
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Downside Score",
+      "type": "integer"
+    },
+    "regret_score": {
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Regret Score",
+      "type": "integer"
+    },
+    "reversibility_score": {
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Reversibility Score",
+      "type": "integer"
+    },
+    "optionality_score": {
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Optionality Score",
+      "type": "integer"
+    },
+    "evidence": {
+      "items": {
+        "$ref": "#/$defs/Citation"
+      },
+      "title": "Evidence",
+      "type": "array"
+    }
+  },
+  "required": [
+    "scenario_key",
+    "scenario_name",
+    "narrative",
+    "branching_logic",
+    "confidence_label",
+    "probability_band",
+    "time_horizon",
+    "upside_score",
+    "downside_score",
+    "regret_score",
+    "reversibility_score",
+    "optionality_score"
+  ],
+  "title": "ScenarioSpec",
+  "type": "object"
+}

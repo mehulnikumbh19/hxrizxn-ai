@@ -22,7 +22,6 @@
     "docker:build": "docker build -t hxrizxn-api:local apps/api && docker build -t hxrizxn-web:local apps/web"
   },
   "devDependencies": {
-    "concurrently": "9.2.1"
+    "concurrently": "10.0.3"
   }
 }
-

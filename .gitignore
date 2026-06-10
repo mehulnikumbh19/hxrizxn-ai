@@ -9,6 +9,8 @@ dist/
 coverage/
 playwright-report/
 test-results/
+output/
+infra/bicep/main.json
 *.pyc
 *.log
 *.db
@@ -18,4 +20,3 @@ uploads/
 apps/api/hxrizxn.db
 apps/web/.next/
 apps/web/out/
-

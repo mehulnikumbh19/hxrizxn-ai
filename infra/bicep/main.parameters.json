@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentName": {
+      "value": "hxrizxn"
+    },
+    "acrName": {
+      "value": "REPLACE_WITH_ACR_NAME"
+    },
+    "backendImage": {
+      "value": "YOUR_ACR.azurecr.io/hxrizxn-api:latest"
+    },
+    "frontendImage": {
+      "value": "YOUR_ACR.azurecr.io/hxrizxn-web:latest"
+    },
+    "postgresAdminPassword": {
+      "value": "REPLACE_WITH_SECURE_PASSWORD"
+    }
+  }
+}

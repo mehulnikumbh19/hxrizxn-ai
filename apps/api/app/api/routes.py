@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
-from uuid import uuid4
-
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
@@ -14,6 +11,7 @@ from app.schemas import AnalysisPackage, CaseCreateRequest, CaseResponse, Docume
 from app.services.orchestrator import HorizonXWorkflow
 from app.services.reporting import render_markdown_report
 from app.services.security import sanitize_retrieved_text, validate_upload_type
+from app.providers.storage import get_storage_provider
 
 router = APIRouter(prefix="/api")
 
@@ -112,15 +110,10 @@ async def upload_document(
         raise HTTPException(status_code=404, detail="Case not found")
     validate_upload_type(file.content_type or "application/octet-stream")
     settings = get_settings()
-    upload_dir = Path(settings.upload_dir) / case_id
-    upload_dir.mkdir(parents=True, exist_ok=True)
-    suffix = Path(file.filename or "document.txt").suffix
-    safe_name = f"{uuid4()}{suffix}"
-    target = upload_dir / safe_name
     content = await file.read()
     if len(content) > 5_000_000:
         raise HTTPException(status_code=413, detail="File too large for MVP upload limit")
-    target.write_bytes(content)
+    storage_uri = get_storage_provider(settings).save_bytes(case_id, file.filename or "document.txt", content)
     text_status = "stored"
     metadata = {"original_filename": file.filename, "bytes": len(content)}
     if (file.content_type or "").startswith("text/"):
@@ -128,9 +121,9 @@ async def upload_document(
         text_status = "extracted"
     doc = DocumentDB(
         case_id=case_id,
-        filename=file.filename or safe_name,
+        filename=file.filename or "document.txt",
         mime_type=file.content_type or "application/octet-stream",
-        storage_uri=str(target),
+        storage_uri=storage_uri,
         text_status=text_status,
         retrieval_status="mock-indexed",
         metadata_json=metadata,
@@ -172,4 +165,3 @@ def get_demo_scenarios(db: Session = Depends(get_db)) -> AnalysisPackage:
     db.commit()
     db.refresh(case)
     return HorizonXWorkflow().analyze_case(db, case)
-

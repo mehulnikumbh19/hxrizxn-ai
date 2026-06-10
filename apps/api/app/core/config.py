@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     openai_model: str = "gpt-4.1-mini"
     upload_dir: str = Field(default="uploads")
+    azure_storage_connection_string: str | None = None
+    azure_blob_container: str = "uploads"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
@@ -40,4 +42,3 @@ class Settings(BaseSettings):
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     return Settings()
-
