@@ -1,0 +1,33 @@
+[
+  {
+    "id": "startup_quit",
+    "decision_type": "startup",
+    "prompt": "I'm a software engineer with 3 years of experience. I have savings for 8 months. I want to quit my job and start an AI startup, but I'm worried about burn rate, isolation, and whether I'm romanticizing founder life. Should I quit now, wait 6 months, or test the idea part-time first?",
+    "must_include": ["experiment", "runway", "reversibility"]
+  },
+  {
+    "id": "move_country",
+    "decision_type": "relocation",
+    "prompt": "Should I move to another country for a role that may accelerate my career, even though I am worried about visa rules, loneliness, and cost of living?",
+    "must_include": ["visa", "support", "trial"]
+  },
+  {
+    "id": "graduate_school",
+    "decision_type": "graduate_school",
+    "prompt": "Should I pursue graduate school now, defer for a year, or test the field with a lower-cost course first?",
+    "must_include": ["defer", "course", "opportunity"]
+  },
+  {
+    "id": "buy_house",
+    "decision_type": "home_purchase",
+    "prompt": "Should I buy a house this year or keep renting while my career and location are uncertain?",
+    "must_include": ["mortgage", "flexibility", "financial"]
+  },
+  {
+    "id": "switch_careers",
+    "decision_type": "career",
+    "prompt": "Should I switch from cybersecurity operations into AI product management, stay in my current track, or run a portfolio experiment first?",
+    "must_include": ["portfolio", "career", "experiment"]
+  }
+]
+

@@ -1,0 +1,28 @@
+{
+  "name": "hxrizxn-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hxrizxn AI - HORIZON-X multi-agent decision simulator.",
+  "workspaces": [
+    "apps/web",
+    "packages/*"
+  ],
+  "scripts": {
+    "install:all": "npm install --workspaces && python -m pip install -e apps/api[dev]",
+    "dev:web": "npm --workspace apps/web run dev",
+    "dev:api": "python -m uvicorn app.main:app --app-dir apps/api --reload --host 0.0.0.0 --port 8000",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "test:web": "npm --workspace apps/web run test",
+    "test:e2e": "npm --workspace apps/web run test:e2e",
+    "test:api": "pytest apps/api/tests",
+    "test": "npm run test:web && npm run test:api",
+    "evals": "python scripts/run_evals.py",
+    "seed": "python scripts/seed_demo_data.py",
+    "schemas": "python scripts/export_schemas.py",
+    "docker:build": "docker build -t hxrizxn-api:local apps/api && docker build -t hxrizxn-web:local apps/web"
+  },
+  "devDependencies": {
+    "concurrently": "9.2.1"
+  }
+}
+
