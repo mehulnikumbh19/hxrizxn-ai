@@ -415,11 +415,16 @@ function Intake({
           <button onClick={runDemo} className="focus-ring rounded border border-white/20 px-5 py-3 font-semibold text-white">
             Try Sample Decision
           </button>
-          <label className="focus-ring inline-flex items-center gap-2 rounded border border-white/20 px-4 py-3 text-sm text-slate-200">
+          <button
+            type="button"
+            disabled
+            aria-disabled="true"
+            title="Document upload is coming soon"
+            className="inline-flex cursor-not-allowed items-center gap-2 rounded border border-white/10 px-4 py-3 text-sm text-slate-500"
+          >
             <FileUp size={18} />
-            Upload Docs
-            <input type="file" className="sr-only" multiple />
-          </label>
+            Upload Docs (coming soon)
+          </button>
         </div>
         {error && <div className="mt-4 rounded border border-amber-300/40 bg-amber-300/10 p-3 text-sm text-amber-100">{error}</div>}
       </div>
