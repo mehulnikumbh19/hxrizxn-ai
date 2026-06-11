@@ -1,30 +1,63 @@
 import type { AnalysisPackage } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const ANALYSIS_TIMEOUT_MS = 210_000;
+
+async function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit = {}, timeoutMs = ANALYSIS_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
 
 export const samplePrompt =
   "I'm a software engineer with 3 years of experience. I have savings for 8 months. I want to quit my job and start an AI startup, but I'm worried about burn rate, isolation, and whether I'm romanticizing founder life. Should I quit now, wait 6 months, or test the idea part-time first?";
 
-export async function createAndAnalyzeDecision(raw_prompt: string): Promise<AnalysisPackage> {
+export async function createAndAnalyzeDecision(
+  raw_prompt: string,
+  goals: string[],
+  fears: string[],
+  money_limit_months: number,
+  time_horizon_months: number
+): Promise<AnalysisPackage> {
+  const title = raw_prompt.slice(0, 60) + (raw_prompt.length > 60 ? "..." : "");
+  
+  let decision_type = "general";
+  const lower = raw_prompt.toLowerCase();
+  if (lower.includes("quit") || lower.includes("startup") || lower.includes("founder")) {
+    decision_type = "startup";
+  } else if (lower.includes("move") || lower.includes("country") || lower.includes("relocat")) {
+    decision_type = "relocation";
+  } else if (lower.includes("school") || lower.includes("grad") || lower.includes("degree")) {
+    decision_type = "graduate_school";
+  } else if (lower.includes("house") || lower.includes("buy") || lower.includes("mortgage") || lower.includes("rent")) {
+    decision_type = "home_purchase";
+  } else if (lower.includes("career") || lower.includes("job") || lower.includes("switch")) {
+    decision_type = "career";
+  }
+
   const created = await fetch(`${API_URL}/api/cases`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      title: "Quit job or test the AI startup first?",
-      decision_type: "startup",
+      title,
+      decision_type,
       raw_prompt,
-      goals: ["Founder autonomy", "Learning velocity", "Avoid irreversible regret"],
-      fears: ["Burn rate", "Isolation", "Romanticizing founder life"],
-      constraints: ["8 months savings", "Current job provides stable income"],
-      money_limit_months: 8,
-      time_horizon_months: 18
+      goals,
+      fears,
+      constraints: ["Resource constraints", "Time horizon limitations"],
+      money_limit_months,
+      time_horizon_months
     })
   });
   if (!created.ok) {
     throw new Error("Could not create case");
   }
   const caseData = await created.json();
-  const analyzed = await fetch(`${API_URL}/api/cases/${caseData.id}/analyze`, { method: "POST" });
+  const analyzed = await fetchWithTimeout(`${API_URL}/api/cases/${caseData.id}/analyze`, { method: "POST" });
   if (!analyzed.ok) {
     throw new Error("Could not analyze case");
   }
@@ -167,4 +200,3 @@ export const fallbackPackage: AnalysisPackage = {
     latency_ms: 40 + index * 11
   }))
 };
-
