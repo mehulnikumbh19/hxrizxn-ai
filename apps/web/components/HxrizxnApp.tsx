@@ -104,7 +104,7 @@ export function HxrizxnApp() {
     <main className={`app-shell ${screen === "landing" ? "app-shell--landing" : ""}`}>
       <header className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5">
         <button className="focus-ring flex items-center gap-3" onClick={() => setScreen("landing")}>
-          <Image src="/logo.png" alt="Hxrizxn AI logo" width={38} height={38} className="rounded" />
+          <Image src="/logo.png" alt="Hxrizxn AI logo" width={44} height={38} className="h-[38px] w-[44px] rounded object-contain" />
           <span className="text-lg font-semibold">Hxrizxn AI</span>
         </button>
         <div className="hidden items-center gap-2 md:flex">
@@ -380,7 +380,7 @@ function Experiment({ data, setScreen }: { data: AnalysisPackage; setScreen: (sc
         <div className="panel rounded-lg p-5">
           <div className="flex items-center gap-2 text-teal-200">
             <CheckCircle2 size={20} />
-            {plan.duration_days} days · reversible
+            {plan.duration_days} days - reversible
           </div>
           <p className="mt-4 text-lg leading-8 text-slate-200">{plan.hypothesis}</p>
           <ListBlock title="Steps" items={plan.steps} />

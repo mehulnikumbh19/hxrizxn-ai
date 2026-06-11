@@ -37,17 +37,23 @@ function Invoke-AzText($Arguments) {
 }
 
 function Test-AcrExists($Name, $ResourceGroup) {
-  $null = & az acr show --name $Name --resource-group $ResourceGroup --output none 2>$null
-  return $LASTEXITCODE -eq 0
+  $oldEap = $ErrorActionPreference
+  $ErrorActionPreference = "SilentlyContinue"
+  $count = & az acr list --resource-group $ResourceGroup --query "[?name=='$Name'] | length(@)" --output tsv 2>$null
+  $ErrorActionPreference = $oldEap
+  if ($LASTEXITCODE -ne 0) {
+    return $false
+  }
+  return [int]$count -gt 0
 }
 
-function Build-AndPushImage($ContextPath, $ImageTag, $AcrLoginServer, $AcrName) {
+function Build-WithDocker($ContextPath, $ImageTag, $AcrLoginServer, $AcrName) {
   $fullImage = "$AcrLoginServer/$ImageTag"
   $docker = Get-Command docker -ErrorAction SilentlyContinue
   if (-not $docker) {
     throw @"
-Docker is required on this machine because the current Azure subscription does not allow ACR cloud builds (az acr build).
-Install Docker Desktop, then rerun this script. GitHub Actions can also build and push with .github/workflows/build-push-acr.yml.
+ACR cloud build failed and Docker is not installed on this machine.
+Install Docker Desktop or rerun after Azure Container Registry cloud builds are available.
 "@
   }
 
@@ -68,6 +74,17 @@ Install Docker Desktop, then rerun this script. GitHub Actions can also build an
   if ($LASTEXITCODE -ne 0) {
     throw "docker push failed for $fullImage"
   }
+}
+
+function Build-AndPushImage($ContextPath, $ImageTag, $AcrLoginServer, $AcrName) {
+  Write-Host "Building image in Azure Container Registry: $ImageTag"
+  & az acr build --registry $AcrName --image $ImageTag $ContextPath --output none
+  if ($LASTEXITCODE -eq 0) {
+    return
+  }
+
+  Write-Host "ACR cloud build failed. Falling back to local Docker build/push."
+  Build-WithDocker -ContextPath $ContextPath -ImageTag $ImageTag -AcrLoginServer $AcrLoginServer -AcrName $AcrName
 }
 
 try {
@@ -109,8 +126,25 @@ foreach ($provider in $providers) {
   & az provider register --namespace $provider | Out-Null
 }
 
-Write-Host "Creating resource group $ResourceGroup in $Location"
-& az group create --name $ResourceGroup --location $Location | Out-Null
+$oldEap = $ErrorActionPreference
+$ErrorActionPreference = "SilentlyContinue"
+$existingGroup = & az group show --name $ResourceGroup --output json 2>$null
+$ErrorActionPreference = $oldEap
+if ($LASTEXITCODE -eq 0 -and -not [string]::IsNullOrWhiteSpace($existingGroup)) {
+  $group = $existingGroup | ConvertFrom-Json
+  if ($group.location -ne $Location) {
+    Write-Host "Resource group $ResourceGroup already exists in $($group.location). Using that location instead of $Location."
+    $Location = $group.location
+  } else {
+    Write-Host "Resource group $ResourceGroup already exists in $Location"
+  }
+} else {
+  Write-Host "Creating resource group $ResourceGroup in $Location"
+  & az group create --name $ResourceGroup --location $Location | Out-Null
+  if ($LASTEXITCODE -ne 0) {
+    throw "az group create failed for $ResourceGroup in $Location"
+  }
+}
 
 if (-not (Test-AcrExists $AcrName $ResourceGroup)) {
   Write-Host "Creating Azure Container Registry $AcrName in $Location"
@@ -166,4 +200,3 @@ Write-Host ""
 Write-Host "Verify:"
 Write-Host "  Invoke-RestMethod '$($outputs.apiUrl.value)/api/health'"
 Write-Host "  Open '$($outputs.webUrl.value)'"
-

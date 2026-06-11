@@ -22,6 +22,7 @@ def verify_outputs(
     impacts: list[ScenarioImpact],
     risks: list[RiskItem],
     experiment: ExperimentPlan,
+    model: ModelProvider | None = None,
 ) -> VerificationResult:
     flags: list[SafetyFlag] = list(framed.high_stakes_flags)
     scenario_keys = {scenario.scenario_key for scenario in scenarios}
