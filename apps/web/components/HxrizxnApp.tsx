@@ -16,7 +16,7 @@ import {
   Sparkles
 } from "lucide-react";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AgentTraceGraph } from "@/components/AgentTraceGraph";
 import { ImpactStack, OptionalityQuadrant, RadarChart, RiskHeatmap } from "@/components/DecisionCharts";
 import { ScenarioLattice } from "@/components/ScenarioLattice";
@@ -50,36 +50,74 @@ const credibilityItems = [
   { label: "Safety verifier", icon: ShieldCheck }
 ];
 
+const agentLabels = [
+  "Decision Framing Agent",
+  "Evidence Grounding Agent",
+  "Assumption Miner Agent",
+  "Scenario Lattice Agent",
+  "Ripple Effects Agent",
+  "Regret and Reversibility Agent",
+  "Black Swan Agent",
+  "Future Self Agent",
+  "Experiment Design Agent",
+  "Safety and Boundary Agent",
+  "Recommendation Composer Agent"
+];
+
 export function HxrizxnApp() {
   const { screen, setScreen, packageData, setPackageData } = useDecisionStore();
   const [prompt, setPrompt] = useState(samplePrompt);
   const [error, setError] = useState<string | null>(null);
+  const [isFallbackDemo, setIsFallbackDemo] = useState(false);
   const [loadingLabel, setLoadingLabel] = useState("Decision Framing Agent");
+  const [loadingStartedAt, setLoadingStartedAt] = useState<number | null>(null);
+  const [loadingElapsedSec, setLoadingElapsedSec] = useState(0);
+  const loadingTimers = useRef<number[]>([]);
+
+  const [goals, setGoals] = useState("autonomy, learning");
+  const [fears, setFears] = useState("burn rate, isolation");
+  const [moneyLimit, setMoneyLimit] = useState<number>(8);
+  const [timeHorizon, setTimeHorizon] = useState<number>(18);
+
+  useEffect(() => {
+    if (screen !== "loading" || loadingStartedAt === null) {
+      return;
+    }
+    const intervalId = window.setInterval(() => {
+      setLoadingElapsedSec(Math.floor((Date.now() - loadingStartedAt) / 1000));
+    }, 1000);
+    return () => window.clearInterval(intervalId);
+  }, [loadingStartedAt, screen]);
+
+  function clearLoadingTimers() {
+    loadingTimers.current.forEach((timer) => window.clearTimeout(timer));
+    loadingTimers.current = [];
+  }
+
+  function startLoadingSequence() {
+    clearLoadingTimers();
+    setLoadingStartedAt(Date.now());
+    setLoadingElapsedSec(0);
+    setLoadingLabel(agentLabels[0]);
+    const intervalMs = 10_000;
+    agentLabels.forEach((label, index) => {
+      const timer = window.setTimeout(() => setLoadingLabel(label), intervalMs * index);
+      loadingTimers.current.push(timer);
+    });
+  }
 
   async function runDemo() {
     setError(null);
+    setIsFallbackDemo(false);
     setScreen("loading");
-    const labels = [
-      "Decision Framing Agent",
-      "Evidence Grounding Agent",
-      "Assumption Miner Agent",
-      "Scenario Lattice Agent",
-      "Ripple Effects Agent",
-      "Regret and Reversibility Agent",
-      "Black Swan Agent",
-      "Future Self Agent",
-      "Experiment Design Agent",
-      "Safety and Boundary Agent",
-      "Recommendation Composer Agent"
-    ];
-    labels.forEach((label, index) => {
-      window.setTimeout(() => setLoadingLabel(label), 200 * index);
-    });
+    startLoadingSequence();
     try {
       const data = await fetchDemoPackage();
+      clearLoadingTimers();
       setPackageData(data);
       setScreen("comparison");
     } catch (err) {
+      clearLoadingTimers();
       setError(err instanceof Error ? err.message : "Analysis failed");
       setScreen("intake");
     }
@@ -87,15 +125,22 @@ export function HxrizxnApp() {
 
   async function runCustom() {
     setError(null);
+    setIsFallbackDemo(false);
     setScreen("loading");
+    startLoadingSequence();
     try {
-      const data = await createAndAnalyzeDecision(prompt);
+      const goalsList = goals.split(",").map(g => g.trim()).filter(Boolean);
+      const fearsList = fears.split(",").map(f => f.trim()).filter(Boolean);
+      const data = await createAndAnalyzeDecision(prompt, goalsList, fearsList, moneyLimit, timeHorizon);
+      clearLoadingTimers();
       setPackageData(data);
       setScreen("comparison");
-    } catch {
+    } catch (err) {
       const data = await fetchDemoPackage();
+      clearLoadingTimers();
       setPackageData(data);
-      setError("API unavailable, showing deterministic demo mode.");
+      setIsFallbackDemo(true);
+      setError("API unavailable, showing deterministic demo mode. Details: " + (err instanceof Error ? err.message : String(err)));
       setScreen("comparison");
     }
   }
@@ -121,12 +166,37 @@ export function HxrizxnApp() {
         </div>
       </header>
 
+      {isFallbackDemo && ["comparison", "ripple", "experiment", "memo"].includes(screen) && (
+        <div className="mx-auto max-w-7xl px-5 pt-8">
+          <div className="mb-5 rounded border border-amber-300/40 bg-amber-300/10 p-3 text-sm text-amber-100">
+            Live analysis was unavailable, so this is unrelated demo content shown as a fallback — it does not reflect
+            your prompt. Try again in a moment, or check your connection to the API.
+          </div>
+        </div>
+      )}
+
       {screen === "landing" && <Landing runDemo={runDemo} openIntake={() => setScreen("intake")} />}
       {screen === "intake" && (
-        <Intake prompt={prompt} setPrompt={setPrompt} runCustom={runCustom} runDemo={runDemo} error={error} />
+        <Intake
+          prompt={prompt}
+          setPrompt={setPrompt}
+          goals={goals}
+          setGoals={setGoals}
+          fears={fears}
+          setFears={setFears}
+          moneyLimit={moneyLimit}
+          setMoneyLimit={setMoneyLimit}
+          timeHorizon={timeHorizon}
+          setTimeHorizon={setTimeHorizon}
+          runCustom={runCustom}
+          runDemo={runDemo}
+          error={error}
+        />
       )}
-      {screen === "loading" && <Loading label={loadingLabel} />}
-      {packageData && screen === "comparison" && <Comparison data={packageData} setScreen={setScreen} />}
+      {screen === "loading" && <Loading label={loadingLabel} elapsedSec={loadingElapsedSec} />}
+      {packageData && screen === "comparison" && (
+        <Comparison data={packageData} setScreen={setScreen} />
+      )}
       {packageData && screen === "ripple" && <Ripple data={packageData} setScreen={setScreen} />}
       {packageData && screen === "experiment" && <Experiment data={packageData} setScreen={setScreen} />}
       {packageData && screen === "memo" && <Memo data={packageData} setScreen={setScreen} />}
@@ -195,16 +265,75 @@ function Landing({ runDemo, openIntake }: { runDemo: () => void; openIntake: () 
 function Intake({
   prompt,
   setPrompt,
+  goals,
+  setGoals,
+  fears,
+  setFears,
+  moneyLimit,
+  setMoneyLimit,
+  timeHorizon,
+  setTimeHorizon,
   runCustom,
   runDemo,
   error
 }: {
   prompt: string;
   setPrompt: (value: string) => void;
+  goals: string;
+  setGoals: (value: string) => void;
+  fears: string;
+  setFears: (value: string) => void;
+  moneyLimit: number;
+  setMoneyLimit: (value: number) => void;
+  timeHorizon: number;
+  setTimeHorizon: (value: number) => void;
   runCustom: () => void;
   runDemo: () => void;
   error: string | null;
 }) {
+  const sampleDecisions = [
+    {
+      label: "Should I quit my job and start a startup?",
+      prompt: "I'm a software engineer with 3 years of experience. I have savings for 8 months. I want to quit my job and start an AI startup, but I'm worried about burn rate, isolation, and whether I'm romanticizing founder life. Should I quit now, wait 6 months, or test the idea part-time first?",
+      goals: "autonomy, learning velocity, avoid regret",
+      fears: "burn rate, isolation, no product-market fit",
+      moneyLimit: 8,
+      timeHorizon: 18
+    },
+    {
+      label: "Should I move to another country?",
+      prompt: "Should I move to another country for a new job opportunity, or stay in my home country close to my family and friends?",
+      goals: "career growth, adventure, international experience",
+      fears: "homesickness, language barrier, visa risk",
+      moneyLimit: 6,
+      timeHorizon: 12
+    },
+    {
+      label: "Should I pursue graduate school?",
+      prompt: "Should I enroll in a full-time Master's program to pivot my career, or continue gaining work experience and learn on the side?",
+      goals: "career pivot, deep specialization, credentials",
+      fears: "opportunity cost, tuition debt, academic burnout",
+      moneyLimit: 12,
+      timeHorizon: 24
+    },
+    {
+      label: "Should I buy a house?",
+      prompt: "Should I buy a 3-bedroom fixer-upper house in Austin, Texas with a 6.8% mortgage rate requiring $40k in renovations, or keep renting a downtown apartment for the next 2 years to stay mobile?",
+      goals: "stability, wealth building, renovation skills",
+      fears: "renovation trap, illiquidity, mortgage stress",
+      moneyLimit: 24,
+      timeHorizon: 36
+    },
+    {
+      label: "Should I switch careers?",
+      prompt: "Should I switch from my stable marketing career to a software development role, or continue in my current field where I have seniority?",
+      goals: "intellectual challenge, higher salary, industry growth",
+      fears: "starting from scratch, ageism, job search fatigue",
+      moneyLimit: 6,
+      timeHorizon: 12
+    }
+  ];
+
   return (
     <section className="mx-auto grid max-w-7xl gap-6 px-5 pb-20 pt-10 lg:grid-cols-[1fr_0.7fr]">
       <div className="panel rounded-lg p-5">
@@ -218,13 +347,42 @@ function Intake({
           onChange={(event) => setPrompt(event.target.value)}
         />
         <div className="mt-4 grid gap-3 md:grid-cols-2">
-          {["Goals: autonomy, learning", "Fears: burn rate, isolation", "Money limit: 8 months", "Timeline: 18 months"].map(
-            (item) => (
-              <div key={item} className="rounded border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-slate-200">
-                {item}
-              </div>
-            )
-          )}
+          <div className="rounded border border-white/10 bg-white/[0.04] p-3 text-sm">
+            <label className="block text-xs text-slate-400 mb-1">Goals (comma separated)</label>
+            <input
+              type="text"
+              className="focus-ring w-full rounded border border-white/15 bg-black/30 px-3 py-1.5 text-sm text-white"
+              value={goals}
+              onChange={(e) => setGoals(e.target.value)}
+            />
+          </div>
+          <div className="rounded border border-white/10 bg-white/[0.04] p-3 text-sm">
+            <label className="block text-xs text-slate-400 mb-1">Fears (comma separated)</label>
+            <input
+              type="text"
+              className="focus-ring w-full rounded border border-white/15 bg-black/30 px-3 py-1.5 text-sm text-white"
+              value={fears}
+              onChange={(e) => setFears(e.target.value)}
+            />
+          </div>
+          <div className="rounded border border-white/10 bg-white/[0.04] p-3 text-sm">
+            <label className="block text-xs text-slate-400 mb-1">Money limit (months)</label>
+            <input
+              type="number"
+              className="focus-ring w-full rounded border border-white/15 bg-black/30 px-3 py-1.5 text-sm text-white"
+              value={moneyLimit || ""}
+              onChange={(e) => setMoneyLimit(Number(e.target.value))}
+            />
+          </div>
+          <div className="rounded border border-white/10 bg-white/[0.04] p-3 text-sm">
+            <label className="block text-xs text-slate-400 mb-1">Time horizon (months)</label>
+            <input
+              type="number"
+              className="focus-ring w-full rounded border border-white/15 bg-black/30 px-3 py-1.5 text-sm text-white"
+              value={timeHorizon || ""}
+              onChange={(e) => setTimeHorizon(Number(e.target.value))}
+            />
+          </div>
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <button onClick={runCustom} className="focus-ring inline-flex items-center gap-2 rounded bg-white px-5 py-3 font-semibold text-slate-950">
@@ -244,19 +402,19 @@ function Intake({
       <div className="panel rounded-lg p-5">
         <h2 className="text-xl font-semibold">Sample Decisions</h2>
         <div className="mt-4 space-y-3">
-          {[
-            "Should I quit my job and start a startup?",
-            "Should I move to another country?",
-            "Should I pursue graduate school?",
-            "Should I buy a house?",
-            "Should I switch careers?"
-          ].map((item) => (
+          {sampleDecisions.map((item) => (
             <button
-              key={item}
+              key={item.label}
               className="focus-ring flex w-full items-center justify-between rounded border border-white/10 bg-white/[0.04] p-3 text-left text-sm text-slate-200 hover:bg-white/10"
-              onClick={() => setPrompt(item)}
+              onClick={() => {
+                setPrompt(item.prompt);
+                setGoals(item.goals);
+                setFears(item.fears);
+                setMoneyLimit(item.moneyLimit);
+                setTimeHorizon(item.timeHorizon);
+              }}
             >
-              {item}
+              {item.label}
               <ArrowRight size={16} />
             </button>
           ))}
@@ -266,36 +424,33 @@ function Intake({
   );
 }
 
-function Loading({ label }: { label: string }) {
-  const agents = [
-    "Decision Framing Agent",
-    "Evidence Grounding Agent",
-    "Assumption Miner Agent",
-    "Scenario Lattice Agent",
-    "Ripple Effects Agent",
-    "Regret and Reversibility Agent",
-    "Black Swan Agent",
-    "Future Self Agent",
-    "Experiment Design Agent",
-    "Safety and Boundary Agent",
-    "Recommendation Composer Agent"
-  ];
+function Loading({ label, elapsedSec }: { label: string; elapsedSec: number }) {
+  const agents = agentLabels;
+  const activeIndex = Math.max(0, agents.indexOf(label));
   return (
     <section className="mx-auto max-w-7xl px-5 pb-20 pt-12">
       <div className="panel rounded-lg p-6">
-        <div className="flex items-center gap-3 text-teal-200">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-teal-200">
+          <div className="flex items-center gap-3">
           <Activity className="animate-pulse" />
           <span>{label}</span>
+          </div>
+          <span className="rounded border border-white/10 bg-black/25 px-3 py-1 text-sm text-slate-300">
+            {elapsedSec}s elapsed
+          </span>
         </div>
         <h2 className="mt-4 text-3xl font-semibold">HORIZON-X analysis running</h2>
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
+          Live Azure analysis can take about one to two minutes while each agent generates and validates structured output.
+        </p>
         <div className="mt-6 grid gap-3 md:grid-cols-3">
           {agents.map((agent, index) => (
             <motion.div
               key={agent}
               initial={{ opacity: 0.4, y: 8 }}
-              animate={{ opacity: label === agent ? 1 : 0.72, y: 0 }}
+              animate={{ opacity: index <= activeIndex ? 1 : 0.72, y: 0 }}
               transition={{ delay: index * 0.03 }}
-              className={`rounded border p-4 ${label === agent ? "border-teal-200 bg-teal-200/10" : "border-white/10 bg-white/[0.04]"}`}
+              className={`rounded border p-4 ${index <= activeIndex ? "border-teal-200 bg-teal-200/10" : "border-white/10 bg-white/[0.04]"}`}
             >
               <div className="text-sm font-semibold">{agent}</div>
               <div className="mt-2 text-xs text-slate-300">Structured JSON output, trace visible, chain-of-thought hidden.</div>
@@ -307,7 +462,13 @@ function Loading({ label }: { label: string }) {
   );
 }
 
-function Comparison({ data, setScreen }: { data: AnalysisPackage; setScreen: (screen: "ripple") => void }) {
+function Comparison({
+  data,
+  setScreen
+}: {
+  data: AnalysisPackage;
+  setScreen: (screen: "ripple") => void;
+}) {
   return (
     <section className="mx-auto max-w-7xl px-5 pb-20 pt-8">
       <SectionHeader icon={Network} eyebrow="Scenario Comparison" title={data.framed_decision.title} />
