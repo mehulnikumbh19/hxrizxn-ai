@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 Band = Literal["low", "medium", "high", "very_high"]
 ScenarioKey = Literal["optimistic", "base", "stress"]
@@ -64,6 +64,43 @@ class ScenarioImpact(BaseModel):
     severity: int = Field(ge=1, le=5)
     explanation: str
 
+    @field_validator("domain", mode="before")
+    @classmethod
+    def normalize_domain(cls, value: Any) -> Any:
+        aliases = {
+            "finance": "finances",
+            "financial": "finances",
+            "money": "finances",
+            "relationship": "relationships",
+            "social": "relationships",
+            "health": "health_energy",
+            "energy": "health_energy",
+            "location": "location_lifestyle",
+            "lifestyle": "location_lifestyle",
+            "learning": "learning_identity",
+            "identity": "learning_identity",
+        }
+        if isinstance(value, str):
+            key = value.strip().lower().replace("-", "_").replace(" ", "_")
+            return aliases.get(key, key)
+        return value
+
+    @field_validator("impact_direction", mode="before")
+    @classmethod
+    def normalize_impact_direction(cls, value: Any) -> Any:
+        aliases = {
+            "upside": "positive",
+            "benefit": "positive",
+            "downside": "negative",
+            "risk": "negative",
+            "balanced": "mixed",
+            "uncertain": "mixed",
+        }
+        if isinstance(value, str):
+            key = value.strip().lower().replace("-", "_").replace(" ", "_")
+            return aliases.get(key, key)
+        return value
+
 
 class RiskItem(BaseModel):
     scenario_key: str
@@ -74,6 +111,35 @@ class RiskItem(BaseModel):
     detectability_band: Band
     mitigation: str
     black_swan: bool = False
+
+    @field_validator("risk_type", mode="before")
+    @classmethod
+    def normalize_risk_type(cls, value: Any) -> Any:
+        aliases = {
+            "black swan": "black_swan",
+            "blackswan": "black_swan",
+            "operational": "execution",
+            "implementation": "execution",
+            "unknown": "hidden",
+        }
+        if isinstance(value, str):
+            key = value.strip().lower().replace("-", "_")
+            return aliases.get(key, key)
+        return value
+
+    @field_validator("likelihood_band", "severity_band", "detectability_band", mode="before")
+    @classmethod
+    def normalize_band(cls, value: Any) -> Any:
+        aliases = {
+            "very high": "very_high",
+            "very-high": "very_high",
+            "critical": "very_high",
+            "moderate": "medium",
+        }
+        if isinstance(value, str):
+            key = value.strip().lower()
+            return aliases.get(key, key.replace("-", "_").replace(" ", "_"))
+        return value
 
 
 class ScenarioSpec(BaseModel):
@@ -179,4 +245,3 @@ class DocumentResponse(BaseModel):
     storage_uri: str
     text_status: str
     retrieval_status: str
-
