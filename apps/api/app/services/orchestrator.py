@@ -32,7 +32,7 @@ from app.db.models import (
     ScenarioRiskDB,
 )
 from app.providers.knowledge import get_knowledge_provider
-from app.providers.model import get_model_provider
+from app.providers.model import MockModelProvider, get_model_provider
 from app.schemas import (
     AgentTraceView,
     AnalysisPackage,
@@ -66,7 +66,14 @@ def _summarize(value: Any) -> str:
     return text[:260] + ("..." if len(text) > 260 else "")
 
 
-def _run_agent(db: Session, case_id: str, agent_name: str, payload: dict, fn: Callable[[], T]) -> T:
+def _run_agent(
+    db: Session,
+    case_id: str,
+    agent_name: str,
+    payload: dict,
+    fn: Callable[[], T],
+    fallback: Callable[[], T] | None = None,
+) -> T:
     started = _utcnow()
     row = AgentRunDB(
         case_id=case_id,
@@ -85,6 +92,21 @@ def _run_agent(db: Session, case_id: str, agent_name: str, payload: dict, fn: Ca
         row.output_json = {"summary": _summarize(output)}
         return output
     except Exception as exc:
+        # A live agent failed (timeout, malformed JSON, validation error). For
+        # non-critical agents we degrade to a deterministic fallback instead of
+        # aborting the whole workflow and dumping the user into the demo package.
+        if fallback is not None:
+            try:
+                output = fallback()
+            except Exception as fallback_exc:
+                row.status = "failed"
+                row.error_text = f"{exc} | fallback failed: {fallback_exc}"
+                row.output_json = {"error": str(exc), "fallback_error": str(fallback_exc)}
+                raise
+            row.status = "degraded"
+            row.error_text = str(exc)
+            row.output_json = {"summary": _summarize(output), "degraded": True, "error": str(exc)}
+            return output
         row.status = "failed"
         row.error_text = str(exc)
         row.output_json = {"error": str(exc)}
@@ -101,6 +123,10 @@ class HorizonXWorkflow:
         self.settings = get_settings()
         self.knowledge = get_knowledge_provider(self.settings)
         self.model = get_model_provider(self.settings)
+        # Deterministic provider used as a per-agent fallback when a live agent
+        # call fails, so one flaky model call degrades a single section instead
+        # of crashing the entire analysis.
+        self.mock_model = MockModelProvider()
         self.framework = MicrosoftAgentFrameworkAdapter()
 
     def analyze_case(self, db: Session, case: DecisionCase) -> AnalysisPackage:
@@ -134,6 +160,7 @@ class HorizonXWorkflow:
             "Evidence Grounding Agent",
             {"horizon_x": "O", "framed_decision": framed.model_dump()},
             lambda: retrieve_evidence(framed, self.knowledge),
+            fallback=lambda: [],
         )
         framed.evidence = evidence
 
@@ -144,6 +171,7 @@ class HorizonXWorkflow:
             "Assumption Miner Agent",
             {"horizon_x": "O", "evidence_count": len(evidence)},
             lambda: mine_assumptions(framed, evidence, self.model),
+            fallback=lambda: mine_assumptions(framed, evidence, self.mock_model),
         )
         framed.assumptions = assumptions
         framed.missing_information = missing_info
@@ -155,6 +183,7 @@ class HorizonXWorkflow:
             "Scenario Lattice Agent",
             {"horizon_x": "R", "framed_decision": framed.model_dump()},
             lambda: build_scenarios(framed, self.knowledge, self.model),
+            fallback=lambda: build_scenarios(framed, self.knowledge, self.mock_model),
         )
 
         # 5. Ripple Effects Agent
@@ -164,6 +193,7 @@ class HorizonXWorkflow:
             "Ripple Effects Agent",
             {"horizon_x": "I", "scenario_count": len(scenarios)},
             lambda: map_ripple_effects(framed, scenarios, self.model),
+            fallback=lambda: map_ripple_effects(framed, scenarios, self.mock_model),
         )
 
         # 6. Regret and Reversibility Agent
@@ -177,6 +207,10 @@ class HorizonXWorkflow:
                 score_optionality(framed, scenarios, self.model),
                 assess_regret(framed, scenarios, generate_future_self_postcards(framed, scenarios, self.model), self.model),
             ),
+            fallback=lambda: (
+                score_optionality(framed, scenarios, self.mock_model),
+                assess_regret(framed, scenarios, generate_future_self_postcards(framed, scenarios, self.mock_model), self.mock_model),
+            ),
         )
 
         # 7. Black Swan Agent
@@ -186,6 +220,7 @@ class HorizonXWorkflow:
             "Black Swan Agent",
             {"horizon_x": "Z", "scenario_count": len(scenarios)},
             lambda: identify_risks(framed, scenarios, self.model),
+            fallback=lambda: identify_risks(framed, scenarios, self.mock_model),
         )
 
         # 8. Future Self Agent
@@ -195,6 +230,7 @@ class HorizonXWorkflow:
             "Future Self Agent",
             {"horizon_x": "N/X", "scenario_count": len(scenarios)},
             lambda: generate_future_self_postcards(framed, scenarios, self.model),
+            fallback=lambda: generate_future_self_postcards(framed, scenarios, self.mock_model),
         )
 
         # 9. Experiment Design Agent
@@ -204,6 +240,7 @@ class HorizonXWorkflow:
             "Experiment Design Agent",
             {"horizon_x": "N", "risk_count": len(risks)},
             lambda: design_experiment(framed, risks, self.model),
+            fallback=lambda: design_experiment(framed, risks, self.mock_model),
         )
 
         # 10. Safety and Boundary Agent
@@ -224,6 +261,7 @@ class HorizonXWorkflow:
             "Recommendation Composer Agent",
             {"horizon_x": "X", "verification": dict(verification)},
             lambda: compose_memo(framed, scenarios, risks, optionality, regret, experiment, self.model),
+            fallback=lambda: compose_memo(framed, scenarios, risks, optionality, regret, experiment, self.mock_model),
         )
 
         self._persist_analysis(db, case, scenarios, impacts, risks, experiment, memo)

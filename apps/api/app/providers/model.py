@@ -1,8 +1,13 @@
 from __future__ import annotations
 import json
+from collections.abc import Callable
 import httpx
 from dataclasses import dataclass
 from app.core.config import Settings
+
+
+class ModelOutputError(RuntimeError):
+    """Raised when a model response cannot be parsed as JSON after retries."""
 
 
 @dataclass(frozen=True)
@@ -10,6 +15,26 @@ class ModelRequest:
     system_prompt: str
     user_payload: dict
     schema_name: str
+
+
+def _request_json_with_retry(do_request: Callable[[], httpx.Response], attempts: int = 2) -> dict:
+    """Issue the request and parse the JSON content, retrying once on malformed JSON.
+
+    Live models occasionally return non-JSON or truncated content; a single retry
+    usually self-corrects. After exhausting attempts we raise ModelOutputError so
+    the orchestrator can fall back instead of crashing the whole workflow.
+    """
+    last_error: Exception | None = None
+    for _ in range(attempts):
+        response = do_request()
+        response.raise_for_status()
+        data = response.json()
+        content = data["choices"][0]["message"]["content"]
+        try:
+            return json.loads(content)
+        except (json.JSONDecodeError, TypeError) as exc:
+            last_error = exc
+    raise ModelOutputError(f"Model returned non-JSON content after {attempts} attempts: {last_error}")
 
 
 class ModelProvider:
@@ -59,11 +84,7 @@ class AzureFoundryModelProvider(ModelProvider):
         }
 
         with httpx.Client(timeout=60.0) as client:
-            response = client.post(url, headers=headers, json=payload)
-            response.raise_for_status()
-            data = response.json()
-            content = data["choices"][0]["message"]["content"]
-            return json.loads(content)
+            return _request_json_with_retry(lambda: client.post(url, headers=headers, json=payload))
 
 
 class OpenAIModelProvider(ModelProvider):
@@ -91,11 +112,9 @@ class OpenAIModelProvider(ModelProvider):
         }
 
         with httpx.Client(timeout=60.0) as client:
-            response = client.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-            response.raise_for_status()
-            data = response.json()
-            content = data["choices"][0]["message"]["content"]
-            return json.loads(content)
+            return _request_json_with_retry(
+                lambda: client.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+            )
 
 
 def get_model_provider(settings: Settings) -> ModelProvider:
