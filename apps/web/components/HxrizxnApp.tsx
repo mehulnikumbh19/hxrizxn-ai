@@ -131,6 +131,23 @@ export function HxrizxnApp() {
   }
 
   async function runCustom() {
+    // Validate intake before kicking off the (expensive) analysis run.
+    const trimmedPrompt = prompt.trim();
+    if (!trimmedPrompt) {
+      setError("Describe the decision you want to analyze before running.");
+      setScreen("intake");
+      return;
+    }
+    if (!Number.isFinite(moneyLimit) || moneyLimit <= 0) {
+      setError("Money limit (months) must be a number greater than 0.");
+      setScreen("intake");
+      return;
+    }
+    if (!Number.isFinite(timeHorizon) || timeHorizon <= 0) {
+      setError("Time horizon (months) must be a number greater than 0.");
+      setScreen("intake");
+      return;
+    }
     setError(null);
     setIsFallbackDemo(false);
     setScreen("loading");
@@ -138,7 +155,7 @@ export function HxrizxnApp() {
     try {
       const goalsList = goals.split(",").map(g => g.trim()).filter(Boolean);
       const fearsList = fears.split(",").map(f => f.trim()).filter(Boolean);
-      const data = await createAndAnalyzeDecision(prompt, goalsList, fearsList, moneyLimit, timeHorizon);
+      const data = await createAndAnalyzeDecision(trimmedPrompt, goalsList, fearsList, moneyLimit, timeHorizon);
       clearLoadingTimers();
       setPackageData(data);
       setScreen("comparison");
