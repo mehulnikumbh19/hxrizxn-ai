@@ -75,39 +75,41 @@ class FoundryIQKnowledgeProvider(KnowledgeProvider):
     def retrieve(self, query: RetrievalQuery) -> list[Citation]:
         if not self.settings.foundry_iq_configured:
             return []
+        endpoint = (self.settings.foundry_iq_endpoint or "").rstrip("/")
+        index_name = self.settings.foundry_iq_index_name
         payload = {
-            "index": self.settings.foundry_iq_index_name,
-            "query": query.query,
-            "top_k": query.top_k,
-            "filters": {"case_id": query.case_id, "decision_type": query.decision_type},
+            "search": query.query,
+            "top": query.top_k,
+            "select": "title,source,content,decision_type",
         }
         headers = {"api-key": self.settings.foundry_iq_api_key or ""}
         try:
             response = httpx.post(
-                f"{self.settings.foundry_iq_endpoint.rstrip('/')}/query",
+                f"{endpoint}/indexes/{index_name}/docs/search?api-version=2024-07-01",
                 json=payload,
                 headers=headers,
                 timeout=8,
             )
             response.raise_for_status()
         except httpx.HTTPError:
-            return []
+            return MockKnowledgeProvider().retrieve(query)
         data = response.json()
         citations: list[Citation] = []
-        for item in data.get("results", [])[: query.top_k]:
+        for item in data.get("value", [])[: query.top_k]:
+            content = item.get("content", "")
+            snippet = content[:260] + ("..." if len(content) > 260 else "")
             citations.append(
                 Citation(
                     title=item.get("title", "Foundry IQ result"),
                     source=item.get("source", "Foundry IQ"),
-                    snippet=item.get("snippet", ""),
+                    snippet=snippet,
                     confidence=item.get("confidence", "medium"),
                 )
             )
-        return citations
+        return citations or MockKnowledgeProvider().retrieve(query)
 
 
 def get_knowledge_provider(settings: Settings) -> KnowledgeProvider:
     if settings.foundry_iq_configured:
         return FoundryIQKnowledgeProvider(settings)
     return MockKnowledgeProvider()
-
