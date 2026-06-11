@@ -79,6 +79,13 @@ export function HxrizxnApp() {
   const [moneyLimit, setMoneyLimit] = useState<number>(8);
   const [timeHorizon, setTimeHorizon] = useState<number>(18);
 
+  // Rehydrate the persisted store on the client only (store uses skipHydration
+  // to avoid an SSR hydration mismatch). Initial client render matches the
+  // server's default state; rehydrate then restores the last screen/package.
+  useEffect(() => {
+    void useDecisionStore.persist.rehydrate();
+  }, []);
+
   useEffect(() => {
     if (screen !== "loading" || loadingStartedAt === null) {
       return;
