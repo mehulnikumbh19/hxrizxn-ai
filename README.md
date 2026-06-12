@@ -1,211 +1,328 @@
-# Hxrizxn AI
+<p align="center">
+  <img src="apps/web/public/logo.png" alt="Hxrizxn AI" width="120" />
+</p>
 
-Pronounced Horizon AI. Tagline: **See beyond the obvious future.**
+<h1 align="center">Hxrizxn AI</h1>
 
-Hxrizxn AI is a HORIZON-X multi-agent reasoning simulator for life-changing decisions. It is not a generic advice chatbot, therapist, lawyer, immigration advisor, or financial advisor. It frames a major decision, renders plausible futures, maps second-order consequences, scores reversibility and regret, and recommends a safer experiment before full commitment.
+<p align="center"><em>Pronounced "Horizon". See beyond the obvious future.</em></p>
 
-## Executive Summary
+<p align="center">
+  <a href="https://github.com/microsoft/agentsleague"><img src="https://img.shields.io/badge/Agents%20League-2026-blue" alt="Agents League 2026" /></a>
+  <img src="https://img.shields.io/badge/Track-Reasoning%20Agents-8A2BE2" alt="Track: Reasoning Agents" />
+  <img src="https://img.shields.io/badge/Agents-11-orange" alt="11 agents" />
+  <img src="https://img.shields.io/badge/Microsoft-Agent%20Framework-0078D4" alt="Microsoft Agent Framework" />
+  <img src="https://img.shields.io/badge/Live%20on-Azure%20Container%20Apps-0089D6" alt="Azure Container Apps" />
+  <img src="https://img.shields.io/badge/License-MIT-yellow" alt="MIT" />
+</p>
 
-This repo implements a runnable MVP and production-ready skeleton for the Microsoft Agents League Reasoning Agents track. It includes a FastAPI backend, Microsoft Agent Framework-ready workflow adapter, Foundry IQ retrieval abstraction with mock fallback, persisted agent traces, typed JSON contracts, deterministic demo mode, a polished Next.js app, ECharts and React Flow visualizations, pytest/Vitest/Playwright tests, eval harness, Docker, GitHub Actions, Azure Bicep, sample data, and submission docs.
+> Most AI tools give you an answer.
+> Hxrizxn gives you your **futures**: rendered, stress-tested, scored for regret, and argued over by eleven specialist reasoning agents before anyone dares to recommend anything.
 
-Official contest alignment is based on the public rules requiring a working project, public GitHub repo, max five-minute demo video, architecture diagram, and judging across accuracy, reasoning, creativity, UX, reliability/safety, and community vote.
+It is a **multi-agent decision simulator** for life-changing choices: quitting a job, buying a house, moving countries, going back to school. It does not tell you what to do. It shows you what each path *becomes*, two and three consequences deep, then designs a cheap, reversible experiment so you can test the future before you buy it.
 
-## Assumptions
+---
 
-- Cloud credentials may be absent during judging, so `DEMO_MODE=true` runs fully with mock retrieval.
-- `agent-framework==1.8.1` is pinned and included; local deterministic orchestration keeps demos repeatable while preserving the Microsoft Agent Framework integration seam.
-- Foundry IQ is the primary grounding path when `FOUNDRY_IQ_*` env vars are configured; otherwise `MockKnowledgeProvider` serves curated `/demo-data`.
-- The MVP supports demo/no-auth mode and keeps auth/OAuth/Microsoft Entra as a clean future extension.
+## 🎬 Demo
 
-## Repo Tree
+> 📹 **Demo video:** _[▶ Watch on YouTube](#)_ &nbsp;`<- final link lands here before submission`
+>
+> 🌐 **Try it live, right now:** **https://hxrizxn-web.agreeableforest-fd08d701.eastus2.azurecontainerapps.io**
+>
+> 🩺 API heartbeat: [`/api/health`](https://hxrizxn-api.agreeableforest-fd08d701.eastus2.azurecontainerapps.io/api/health)
 
-```text
-apps/
-  api/                 FastAPI, agents, DB, tests, Alembic
-  web/                 Next.js 16 app, visualizations, e2e
-packages/
-  agent-prompts/       Versioned HORIZON-X prompt library
-  shared/              Shared product constants
-  types/               Shared TS types and exported JSON schemas
-  ui/                  Small reusable UI primitives
-infra/bicep/           Azure Container Apps, Postgres, Storage, Key Vault, Monitor
-demo-data/             Synthetic grounding docs and sample budget
-evals/                 Golden decision cases and eval outputs
-docs/                  Architecture, API, safety, deployment, demo, eval docs
-scripts/               Seed, schema export, eval runner
-```
+---
 
-## Architecture Description
+## 🎮 Don't read about it. Run it. Right here, in this README.
 
-The frontend sends a decision case to FastAPI. The backend stores it, runs HORIZON-X agents through strict Pydantic contracts, retrieves evidence through Foundry IQ or mock documents, persists scenarios/risks/experiments/traces, then returns a UI-ready package. The workflow exposes agent trace transparency without exposing chain-of-thought.
+Below is the canonical demo case, fed to the live pipeline. Eleven agents have already argued about it.
+**Your move: open the futures one by one.** (Condensed from a real Hxrizxn run.)
+
+> 🧑‍💻 *"I'm a software engineer with 3 years of experience and 8 months of savings. Do I quit my job to build an AI startup, wait 6 months, or test it part-time first?"*
+
+<details>
+<summary>🌅 <strong>FUTURE 1 of 3: Controlled Upside Branch</strong> · probability band ~20–30%</summary>
+
+<br/>
+
+You quit with a plan, not a prayer. First customers arrive in month 4. Savings dip to 2.5 months before revenue stabilizes.
+
+| Scorecard | Rating |
+|---|---|
+| Financial trajectory | 📈 Volatile, recovering by month 9 |
+| Reversibility | 🟡 Medium: re-entering employment costs ~3 months |
+| Identity alignment | 🟢 High: matches stated founder ambition |
+| Hidden tax | Health insurance gap, months 1–6 |
+
+</details>
+
+<details>
+<summary>⚖️ <strong>FUTURE 2 of 3: Evidence-Building Base Case</strong> · probability band ~45–60%</summary>
+
+<br/>
+
+You keep the job and build nights and weekends. Progress is slower but every assumption gets tested with someone else paying your rent.
+
+| Scorecard | Rating |
+|---|---|
+| Financial trajectory | 🟢 Stable, savings grow to 11 months |
+| Reversibility | 🟢 High: nothing burned, all doors open |
+| Identity alignment | 🟡 Medium: "founder someday" itch persists |
+| Hidden tax | Energy debt: ~20 evening hours/week for 6 months |
+
+</details>
+
+<details>
+<summary>🌪️ <strong>FUTURE 3 of 3: Runway Compression Stress Case</strong> · probability band ~20–30%</summary>
+
+<br/>
+
+You quit, the first idea misses, a hiring downturn stretches re-entry to 5 months. Savings hit zero in month 7. The decision was survivable; the *timing* wasn't.
+
+| Scorecard | Rating |
+|---|---|
+| Financial trajectory | 🔴 Runway exhausted before signal |
+| Reversibility | 🔴 Low at month 6+: forced choices, weak leverage |
+| Identity alignment | 🟡 Bruised but intact |
+| Hidden tax | Compounding stress on health + relationships |
+
+</details>
+
+<details>
+<summary>🕸️ <strong>What ripples outward</strong> · second and third-order effects</summary>
+
+<br/>
+
+- **Career:** 1st order: title gap → 2nd order: negotiating position weakens → 3rd order: next salary anchors lower.
+- **Relationships:** founder hours strain partner time budget *before* money strain shows up. Hxrizxn flags this in month 2, not month 8.
+- **Health:** sleep debt is the only ripple that touches all six tracked life domains.
+
+</details>
+
+<details>
+<summary>🦢 <strong>The black swan nobody priced in</strong></summary>
+
+<br/>
+
+A foundation-model release makes the startup's core feature a commodity. Probability: low. Impact: total.
+**Detectability:** high, *if* you're watching model release cadence weekly. The risk register includes the tripwire.
+
+</details>
+
+<details>
+<summary>🧪 <strong>The 30-day experiment that beats deciding today</strong></summary>
+
+<br/>
+
+Don't choose a future. **Rent one.**
+
+1. Weeks 1–2: ship a landing page + waitlist for the startup idea while employed.
+2. Weeks 2–4: 15 problem interviews; pre-commit a kill metric (<5 qualified signups = wait).
+3. Day 30: decision checkpoint with *evidence*, not vibes. Total cost: ~$120 and some sleep. Fully reversible.
+
+</details>
+
+<details>
+<summary>📜 <strong>Final memo</strong> · open this last</summary>
+
+<br/>
+
+> **Recommendation: Evidence-Building Base Case, with the 30-day experiment as a forcing function.**
+> The optimistic branch is *available later*; the stress case is only avoidable *now*. Reversibility asymmetry decides it, not pessimism.
+>
+> Uncertainty: bands, not point estimates. Confidence: moderate. Grounding: cited from the indexed evidence docs.
+>
+> ⚠️ Hxrizxn is decision *support*, not a financial advisor, therapist, or lawyer. High-stakes domains get explicit boundaries, automatically.
+
+</details>
+
+That whole argument, eleven agents, full trace, took about a minute against live Azure OpenAI. Now meet the agents that had it.
+
+---
+
+## 🧠 The war room: 11 agents, one decision
+
+Every step is a real, observable workflow node with typed Pydantic contracts, persisted traces, and per-agent latency shown in the UI's **"Behind the scenes"** panel. No hidden chain-of-thought theater: you see *who* concluded *what*, and how long it took.
+
+| # | Agent | The question it exists to answer |
+|---|-------|----------------------------------|
+| 1 | 🖼️ Decision Framing | What are you *actually* deciding? Goals, fears, constraints, options. |
+| 2 | 📚 Evidence Grounding | What do the documents say? Retrieval + citations via Azure AI Search. |
+| 3 | ⛏️ Assumption Miner | What are you taking for granted without noticing? |
+| 4 | 🔱 Scenario Lattice | What plausible futures exist? Optimistic / base / stress, with scorecards. |
+| 5 | 🕸️ Ripple Effects | What happens after what happens? 2nd/3rd-order effects across six life domains. |
+| 6 | ↩️ Regret & Reversibility | Can you undo it? Will you wish you had? Lock-in and undo-cost scoring. |
+| 7 | 🦢 Black Swan | Which low-probability event breaks everything, and how would you detect it early? |
+| 8 | 👵 Future Self | What does the 5-years-out version of you think of this? |
+| 9 | 🧪 Experiment Design | What is the cheapest reversible test that buys real evidence? |
+| 10 | 🛡️ Safety & Boundary | Should an AI even be weighing in here? Pure rule checks, zero model calls, and the power to abort the run. |
+| 11 | ✍️ Recommendation Composer | The final memo: verdict, uncertainty bands, citations, disclaimers. |
+
+> 🔎 Design choice worth noticing: the Safety & Boundary agent **deliberately has no fallback**. If its checks cannot run, the pipeline stops rather than degrades. Some agents should fail loudly.
+
+---
+
+## 🏗️ Architecture
 
 ```mermaid
 flowchart LR
-  U[User] --> W[Next.js 16 Web App]
-  W --> API[FastAPI API]
-  API --> MAF[Microsoft Agent Framework Adapter]
-  API --> WF[HORIZON-X Workflow]
-  WF --> A1[Decision Framing]
-  WF --> A2[Scenario Lattice]
-  WF --> A3[Ripple Effects]
-  WF --> A4[Risk and Black Swan]
-  WF --> A5[Optionality and Reversibility]
-  WF --> A6[Regret and Future Self]
-  WF --> A7[Experiment Design]
-  WF --> A8[Verifier and Safety]
-  WF --> A9[Recommendation Composer]
-  WF --> IQ[Foundry IQ KnowledgeProvider]
-  IQ --> KB[User Docs + Curated Demo Data]
-  WF --> DB[(Postgres/SQLite + pgvector-ready)]
+  U[User] --> W["Next.js 16 Web App<br/>Tailwind v4 · Zustand · ECharts"]
+  W --> API["FastAPI<br/>Pydantic v2 typed contracts"]
+  API --> MAF["Microsoft Agent Framework<br/>workflow adapter"]
+  MAF --> WF["HORIZON-X Orchestrator<br/>11 reasoning agents"]
+  WF --> AOAI["Azure OpenAI<br/>gpt-4.1-mini"]
+  WF --> IQ["Knowledge Provider<br/>Azure AI Search index"]
+  IQ --> KB[("Curated evidence docs")]
+  WF --> DB[("SQLite / PostgreSQL<br/>scenarios · risks · traces")]
   API --> W
-  API --> OBS[Azure Monitor/App Insights scaffold]
+  subgraph Azure
+    ACA["Azure Container Apps<br/>api + web"] --- ACR["Azure Container Registry"]
+    BICEP["Bicep IaC"] --> ACA
+    GHA["GitHub Actions<br/>OIDC deploy on push"] --> BICEP
+  end
+  API -.runs on.-> ACA
 ```
 
-## Workflow
+### The reasoning pipeline
 
 ```mermaid
 flowchart TD
-  intake[Intake] --> framing[Decision Framing Agent]
-  framing --> scenario[Scenario Lattice Agent]
-  scenario --> ripple[Ripple Effects Agent]
-  scenario --> risk[Risk and Black Swan Agent]
-  scenario --> optionality[Optionality and Reversibility Agent]
-  scenario --> regret[Regret and Future Self Agent]
-  ripple --> aggregate[Aggregate JSON Outputs]
-  risk --> aggregate
-  optionality --> aggregate
-  regret --> aggregate
-  aggregate --> experiment[Experiment Design Agent]
-  experiment --> verifier[Verifier and Safety Agent]
-  verifier -->|revise| framing
-  verifier -->|approve| composer[Recommendation Composer Agent]
-  composer --> memo[Decision Memo + Trace + Report]
+  intake[Decision intake] --> f[1 Decision Framing]
+  f --> g[2 Evidence Grounding]
+  g --> am[3 Assumption Miner]
+  am --> sl[4 Scenario Lattice]
+  sl --> r[5 Ripple Effects]
+  sl --> rr["6 Regret and Reversibility"]
+  sl --> bs[7 Black Swan]
+  sl --> fs[8 Future Self]
+  r --> ex[9 Experiment Design]
+  rr --> ex
+  bs --> ex
+  fs --> ex
+  ex --> safe{"10 Safety and Boundary gate"}
+  safe -->|blocked| stop[Run aborted with explanation]
+  safe -->|approved| comp[11 Recommendation Composer]
+  comp --> memo[Decision memo · trace · report]
 ```
 
-## Gantt Timeline
+**HORIZON-X**, the method behind the name: **H**ear the context · **O**rganize goals and constraints · **R**ender plausible futures · **I**dentify ripple effects · **Z**oom into black swans · **O**ptimize for reversibility · **N**ext-step safe experiments · e**X**plain with evidence and uncertainty.
 
-```mermaid
-gantt
-  title Hxrizxn AI Hackathon Build Plan
-  dateFormat  YYYY-MM-DD
-  section Core
-  Contracts and DB           :done, a1, 2026-06-09, 1d
-  Agent workflow             :done, a2, 2026-06-09, 1d
-  Frontend visual flow       :done, a3, 2026-06-10, 1d
-  section Reliability
-  Tests and eval harness     :done, b1, 2026-06-10, 1d
-  Safety gates               :done, b2, 2026-06-10, 1d
-  section Submission
-  Docs and demo script       :done, c1, 2026-06-10, 1d
-  Azure deployment scaffold  :done, c2, 2026-06-10, 1d
+---
+
+## ⚡ Quick start
+
+### Path A: judge mode, zero credentials, ~2 minutes
+
+```bash
+git clone https://github.com/mehulnikumbh19/hxrizxn-ai.git
+cd hxrizxn-ai
+cp .env.example .env          # DEMO_MODE=true by default: deterministic, no cloud needed
+docker compose up --build
 ```
 
-## HORIZON-X
+Open **http://localhost:3000**. The full 11-agent pipeline runs deterministically with curated mock retrieval, so the demo can never be taken down by an expired key.
 
-- H: Hear the decision context
-- O: Organize goals, constraints, and time horizon
-- R: Render plausible futures
-- I: Identify ripple effects and second-order consequences
-- Z: Zoom into black swans and failure modes
-- O: Optimize for reversibility and optionality
-- N: Next-step safe experiments
-- X: Explain recommendation, uncertainty, and evidence
-
-## Screens and Mockups
-
-- [Landing mockup](apps/web/public/mockups/landing.svg)
-- [Intake mockup](apps/web/public/mockups/intake.svg)
-- [Loading and trace mockup](apps/web/public/mockups/loading-trace.svg)
-- [Comparison mockup](apps/web/public/mockups/comparison.svg)
-- [Experiment mockup](apps/web/public/mockups/experiment.svg)
-- [Final memo mockup](apps/web/public/mockups/final-memo.svg)
-
-## Setup Commands
+### Path B: manual local dev
 
 ```powershell
 python -m venv .venv
 . .\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
 python -m pip install -e apps/api[dev]
 npm install
 Copy-Item .env.example .env
-```
 
-## Local Run
-
-```powershell
-# DB migrate
-Set-Location apps/api
-alembic upgrade head
-Set-Location ../..
-
-# Seed demo data
+cd apps/api; alembic upgrade head; cd ../..
 python scripts/seed_demo_data.py
-
-# Backend
-python -m uvicorn app.main:app --app-dir apps/api --reload --port 8000
-
-# Frontend, in a second terminal
-npm --workspace apps/web run dev
+python -m uvicorn app.main:app --app-dir apps/api --reload --port 8000   # terminal 1
+npm --workspace apps/web run dev                                          # terminal 2
 ```
 
-Open `http://localhost:3000`. API health is `http://localhost:8000/api/health`.
+### Path C: live mode (what the deployed app runs)
 
-Full local stack:
+Set in `.env` (never committed; production uses Container App secrets):
 
-```powershell
-docker compose up --build
+```ini
+DEMO_MODE=false
+AZURE_OPENAI_ENDPOINT=...
+AZURE_OPENAI_API_KEY=...
+AZURE_OPENAI_DEPLOYMENT=gpt-4.1-mini
+FOUNDRY_IQ_ENDPOINT=...        # Azure AI Search endpoint
+FOUNDRY_IQ_API_KEY=...
+FOUNDRY_IQ_INDEX_NAME=hxrizxn-demo
 ```
 
-## Test and Eval Commands
+### Tests & evals
 
-```powershell
-pytest apps/api/tests
-npm --workspace apps/web run test
-npm --workspace apps/web run test:e2e
-python scripts/export_schemas.py
-python scripts/run_evals.py
+```bash
+pytest apps/api/tests                 # 13 passed: API flow, schemas, safety, resilience
+npm --workspace apps/web run test     # vitest
+npm --workspace apps/web run test:e2e # Playwright
+python scripts/run_evals.py           # 5 golden decision cases, avg score 9.6/10
 ```
 
-## Docker Commands
+---
 
-```powershell
-docker build -t hxrizxn-api:local apps/api
-docker build -t hxrizxn-web:local apps/web
-docker compose up --build
+## 🛡️ Reliability & safety, by construction
+
+- **Typed contracts everywhere.** Every agent boundary is a Pydantic v2 schema; malformed output triggers a JSON-repair retry, then graceful per-agent degradation instead of a dead run.
+- **High-stakes domain detection.** Medical, legal, immigration, mental-health, and large-financial decisions get explicit boundary language injected automatically.
+- **Prompt-injection sanitizer.** Retrieved document text is scrubbed of instruction-like strings before any agent reads it.
+- **No false precision.** Probability *bands* and uncertainty notes, never confident point estimates about your life.
+- **Defense in depth.** Upload validation, PII redaction, rate limiting, secure headers, secrets only in env/Container App secrets.
+- **Observable, not mystical.** Persisted agent traces + the live per-agent latency panel; transparency without exposing chain-of-thought.
+
+---
+
+## 🏆 How this maps to the judging rubric
+
+| Criterion | Weight | Where Hxrizxn earns it |
+|---|---|---|
+| Accuracy & relevance | 20% | Reasoning Agents track: 11-agent multi-step pipeline on Microsoft Agent Framework, Azure OpenAI, Azure AI Search grounding with citations. |
+| Reasoning & multi-step thinking | 20% | Frame → ground → mine assumptions → render futures → ripple → regret → black swan → experiment → safety gate → memo. Each step persisted and inspectable. |
+| Creativity & originality | 15% | A decision *simulator*, not a chatbot: futures with scorecards, regret modeling, black-swan tripwires, and a rentable 30-day experiment instead of advice. |
+| UX & presentation | 15% | Fluent-2-styled Next.js app, scenario lattice and agent-trace visualizations, decision memo export, this README runs a simulation. |
+| Reliability & safety | 20% | Typed contracts, JSON-repair retries, deterministic demo mode, injection sanitizer, abort-don't-degrade safety gate, 13 API tests + e2e + eval harness. |
+| Community vote | 10% | Everyone has a decision they're afraid of. Bring yours: the live app is one click away. |
+
+---
+
+## 📁 What's in the box
+
+```text
+apps/
+  api/                 FastAPI · 11 agents · SQLAlchemy + Alembic · pytest
+  web/                 Next.js 16 · Tailwind v4 · Zustand · ECharts · Playwright
+packages/
+  agent-prompts/       Versioned HORIZON-X prompt library
+  types/               Shared TS types + exported JSON schemas
+infra/bicep/           Azure Container Apps, Postgres, Storage, Key Vault, Monitor
+demo-data/             Synthetic grounding docs (public-repo friendly)
+evals/                 Golden decision cases + eval runner
+docs/                  architecture.md · agents.md · api.md · safety.md · demo.md ...
+scripts/               seed, schema export, eval harness
 ```
 
-## Azure Deployment
+Deep dives: [architecture](docs/architecture.md) · [agents](docs/agents.md) · [safety](docs/safety.md) · [API](docs/api.md) · [deployment](docs/deployment.md) · [demo script](docs/demo.md)
 
-```powershell
-az login
-.\scripts\deploy_azure_recommended.ps1 `
-  -SubscriptionId "<subscription-id>" `
-  -Location "eastus" `
-  -ResourceGroup "rg-hxrizxn-demo"
-```
+---
 
-The script creates or reuses an ACR, builds API and web images in ACR, deploys Azure Container Apps, PostgreSQL, Blob Storage, Key Vault, and Monitor resources, then prints the API and web URLs. Foundry IQ and Azure OpenAI parameters are optional; leave them blank for deterministic demo mode.
+## 🔍 What we don't claim (yet)
 
-## Demo Script
+Transparency beats polish. Current edges, stated plainly:
 
-Use the canonical prompt from `/demo-data`: a software engineer with 3 years of experience, 8 months savings, and a decision to quit now, wait 6 months, or test an AI startup part-time. See [docs/demo.md](docs/demo.md) for the 5-minute talk track.
+- **Auth** is demo-grade; Microsoft Entra / OAuth is a designed-for but unbuilt extension.
+- **User uploads** are stored and validated but not yet auto-indexed into the search index; grounding currently runs on the curated evidence set.
+- **The eval harness** covers 5 golden cases: a seed, not a benchmark.
+- And to be unmistakably clear: Hxrizxn is **decision support, not a licensed advisor of any kind**. It says so to users, in-product, at the moments that matter.
 
-## Risk List and Mitigations
+---
 
-- False precision: use probability bands and uncertainty notes.
-- Unsafe high-stakes advice: detect medical, legal, immigration, mental health, and large financial domains, then add boundaries.
-- Hallucinated grounding: citations come from Foundry IQ when configured, otherwise curated mock docs.
-- Demo brittleness: deterministic mock mode works without cloud credentials.
-- Prompt injection from docs: retrieved text sanitizer removes instruction-like strings and redacts sensitive text.
-- Privacy risk: demo data is synthetic and public-repo friendly.
+## 📜 Contest & legal
 
-## File-by-File Implementation
+Built for the [Microsoft Agents League](https://github.com/microsoft/agentsleague) @ AI Skills Fest, **Reasoning Agents** track.
+We follow the [Official Rules](https://github.com/microsoft/Agents-League-AISF-Regulations/blob/main/OFFICIAL%20RULES.md), the [Microsoft Code of Conduct](https://www.microsoft.com/en-us/events/code-of-conduct), and the [Disclaimer](https://github.com/microsoft/agentsleague/blob/main/DISCLAIMER.md). No hardcoded secrets, no confidential data, synthetic demo content only.
 
-See [docs/file-by-file.md](docs/file-by-file.md).
+**License:** [MIT](LICENSE) · **Author:** Mehul Nikumbh · mnikumbh19@gmail.com
 
-## References
+---
 
-- Contest rules: https://github.com/microsoft/Agents-League-AISF-Regulations/blob/main/OFFICIAL%20RULES.md
-- Microsoft Agent Framework overview: https://learn.microsoft.com/en-us/agent-framework/overview/
-- Microsoft Agent Framework package: https://pypi.org/project/agent-framework/
+<p align="center"><strong>🔭 The future isn't a fact. It's a lattice. Come look at yours.</strong></p>
