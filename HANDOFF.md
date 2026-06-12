@@ -1,6 +1,108 @@
 # Hxrizxn AI Handoff for Claude
 
-Date: 2026-06-11
+Date: 2026-06-12
+
+## Session Update (2026-06-12 — Cite-or-abstain grounding + emotional/relationship decisions)
+
+Status: **Implemented, verified locally, committed by user. Foundry IQ re-indexing script written but NOT yet run by user (needs Azure admin key).** Built the headline differentiator for the Best Reasoning Agent submission: **cite-or-abstain** grounding, and proved the product handles **emotional / personal / relationship decisions**, not just business ones.
+
+### ⭐ KEY CAPABILITY TO EMPHASIZE: Hxrizxn answers EMOTIONAL questions too
+This is a major selling point and was explicitly validated this session. Hxrizxn is **not** just a business/startup/career tool — the same 11-agent HORIZON-X pipeline reasons about **deeply personal, emotional, relationship, and life decisions** with the same rigor. It was tested live with a hard real-world emotional prompt:
+- *Prompt:* a user torn between a long-term girlfriend and a new partner (overlapping relationships, asking to choose), goals = "honesty, emotional clarity, minimizing harm, long-term peace, maturity", fears = "hurting my girlfriend, losing both, guilt, being alone".
+- The live agents produced genuinely thoughtful, emotionally-aware assumptions and risks (e.g. "Partner emotional backlash despite transparent communication", "Hidden resentment builds leading to breakdown of communication", "Severe emotional distress leading to isolation and depression", plus a black-swan emotional-collapse risk).
+- After enriching the knowledge base with relationship docs, grounding on this exact prompt went **2/10 → 9/10 grounded**, with the speculative black swan honestly left unverified.
+
+**Submission/demo framing:** lead with this range — "the same grounded, multi-agent reasoning engine handles a $900k enterprise contract decision AND 'should I be honest with my partner' — and it cites its evidence or admits when it can't." The emotional use case is more relatable to judges and shows the reasoning generalizes. (Note: the Safety/Boundary agent already exists to flag high-stakes emotional/wellbeing situations — relevant if the demo touches sensitive territory.)
+
+### What "cite-or-abstain" is (the feature built this session)
+Every agent claim is now tagged **grounded** (backed by a retrieved Foundry IQ source, shown with the citation) or **unverified** (the agent abstains rather than asserting it as fact). This matches what the strongest competitors in the Reasoning Agents category win on (PathForward: "no source, no pass"; StructMind: anti-hallucination). Chosen behavior: **tag-and-keep** (keep the claim, label it unverified) — not hard-drop — for the cleanest cited-vs-unverified demo contrast.
+
+### Files changed this session
+- `apps/api/app/schemas.py` — new `GroundedClaim` model (`text`, `status`, `source`, `source_title`); `FramedDecision.grounded_assumptions: list[GroundedClaim]`; `RiskItem.grounding_status` + `grounding_source`.
+- `apps/api/app/agents/assumption.py` — `_ground_claims()` helper; returns a 3rd value `grounded_assumptions`. Live + mock paths both tag.
+- `apps/api/app/agents/risk.py` — `_tag_grounding()` helper wraps both return paths (mock + live); black-swan risks always marked unverified (speculative by nature). **Watch the helper's own `return risks` vs the two wrapped returns — a careless replace-all caused infinite recursion + a null-byte file corruption mid-session; restored from /tmp backup and re-applied via bash.**
+- `apps/api/app/services/orchestrator.py` — captures the new 3rd return value, sets `framed.grounded_assumptions`.
+- `apps/api/app/providers/knowledge.py` — expanded `MockKnowledgeProvider._docs` from 4 → **19 Citation entries** (8 enterprise/career + 7 relationship/emotional). `RetrievalQuery.top_k` 4 → 6.
+- `apps/api/app/agents/grounding.py` — `top_k` 4 → 6.
+- grounding match threshold lowered 2 → 1 strong term (assumption.py + risk.py).
+- `demo-data/` — added **16 new markdown docs** (8 enterprise/career, 8 relationship/emotional: honesty/disclosure, minimizing harm, trust repair, emotional decision-under-uncertainty, emotional wellbeing, social fallout, taking responsibility/reset). demo-data now has ~20 .md files.
+- `apps/web/lib/types.ts` — `GroundedClaim` type + new fields on `FramedDecision`/`RiskItem`.
+- `apps/web/components/GroundingPanel.tsx` — **NEW** component: green "Grounded" / amber "Unverified" badges, "cites <source>" on its own line, "N/M grounded in Foundry IQ" header.
+- `apps/web/components/HxrizxnApp.tsx` — import + renders `<GroundingPanel>` on the **Ripple Effects** screen (after the risk heatmap), reading `data.framed_decision.grounded_assumptions` and `data.risks`.
+- `apps/web/lib/api.ts` — added the new fields to the hand-written `fallbackPackage` demo data (tsc caught this — 3 errors, all fixed; black-swan fallback risk set to unverified for contrast).
+- `scripts/index_foundry_docs.py` — **NEW**: the missing Foundry IQ re-indexing script (see below).
+- `COMPETITIVE_ANALYSIS.md` — **NEW** (repo root): full competitive analysis of the ~120 Reasoning-Agents entries + win strategy (target = Best Reasoning Agent; field is saturated with cert/career coaches; top entries win on grounded/abstaining reasoning).
+
+### NEW: Foundry IQ re-indexing script — `scripts/index_foundry_docs.py` (USER MUST RUN)
+The repo previously had **no way to push demo-data docs into the live Foundry IQ (Azure AI Search) index** — so locally-authored knowledge never reached the deployed app. This script fixes that. It reads every `demo-data/*` file, builds one document (`id`, `title`, `source`, `content`, `decision_type` — matching exactly the fields `FoundryIQKnowledgeProvider` selects), infers `decision_type` from the filename (relationship/startup/career/relocation/general), and uploads with `mergeOrUpload` (idempotent, safe to re-run). Index search API version `2024-07-01`.
+- Run from repo root: `python scripts\index_foundry_docs.py` (add `--create-index` to (re)create the index definition first).
+- Reads `FOUNDRY_IQ_ENDPOINT` / `FOUNDRY_IQ_API_KEY` / `FOUNDRY_IQ_INDEX_NAME` from `.env`.
+- **Requires an ADMIN search key** to upload (a query key gives 403). Dry-run of the document builder confirmed 21 correctly-tagged docs (7 relationship). The sandbox can't reach Azure, so **the user must run this** to make grounding work on the deployed site.
+
+### Verification (all local; sandbox cannot reach Azure)
+- All edited backend modules compile; `python -m compileall apps/api/app` clean.
+- Enterprise prompt (live-style claims): grounding **1/10 → 6/7**.
+- Relationship/emotional prompt (live-style claims from the user's actual run): grounding **2/10 → 9/10**, black swan correctly unverified.
+- User confirmed the GroundingPanel renders live in the browser on the Ripple Effects screen with real LLM output (both an enterprise prompt and the emotional relationship prompt).
+- `npx tsc` initially failed on `api.ts` (3 errors) — fixed; re-run by user.
+
+### Remaining / immediate next steps
+1. **USER: run `python scripts\index_foundry_docs.py`** (with an admin Foundry key) so the **deployed** Azure app grounds against the full doc set — otherwise the live site still has only the original ~6 indexed docs and will show low grounding. Local already works via the expanded MockKnowledge docs.
+2. Commit everything from the user's own terminal (sandbox git is unreliable — quirk #6/#7). Changed: the files listed above + `demo-data/*` + the two new scripts/docs.
+3. Optional cleanup: `apps/api/check_live.py` and `smoke_test.ps1` are throwaway diagnostics (keep smoke_test as a regression test if desired).
+4. Per the prior session: production redeploy + the `demoMode=false` verification is still pending (see next entry).
+5. **Do NOT add mock fallbacks to the Decision Framing or Safety/Boundary agents** (explicit user instruction, prior session) — they intentionally abort rather than degrade.
+
+### Demo emphasis recap
+The two highest-impact talking points for the submission: (a) **cite-or-abstain** = trustworthy, anti-hallucination reasoning (matches what category winners do); (b) **emotional + business range** = the same engine grounds a relationship dilemma AND an enterprise contract, citing evidence or abstaining honestly. Both are now real and demoable.
+
+---
+
+## Session Update (2026-06-12 — "Behind the scenes" agents showing 0 ms)
+
+Status: **Resolved locally and committed; production fix committed, awaiting redeploy + verification by user.** The pipeline panel ("Behind the scenes") was showing many agents at `0 ms`. Root cause was the app silently running in **mock mode**, compounded by a latency-truncation bug and a truncated source file. All fixed locally and verified live; the production (Azure) path had the *same* mock-mode root cause in a different config layer, now fixed in IaC/CI and pending the user's redeploy.
+
+### Root cause (layered — there were four distinct bugs)
+1. **`apps/api/app/services/orchestrator.py` was saved TRUNCATED** (cut off mid-statement inside `FinalRecommendationDB(`, ~407 lines). It did not compile, so the running API was executing a *stale* importable version and no edits to timing took effect. **This is quirk #7 biting again** — large file-tool/editor writes get truncated on this mount. Restored the missing tail via bash; file now compiles.
+2. **Latency truncated to 0.** `_run_agent`'s finally block used `row.latency_ms = int((perf_counter() - timer) * 1000)`. `int()` floors, so any agent finishing in <1 ms (every agent on the deterministic mock path) recorded exactly `0`. Changed to `row.latency_ms = max(1, round(elapsed_ms))` (added `elapsed_ms = (perf_counter() - timer) * 1000`). Verified: 2000/2000 sub-ms ops went 0→1.
+3. **Local: app was in mock mode because `.env` wasn't found.** `config.py` had `SettingsConfigDict(env_file=".env", ...)` — a *relative* path resolved against CWD. When uvicorn runs from `apps/api`, the repo-root `.env` is never found, so pydantic fell back to defaults (`demo_mode=True`, `deployment="gpt-4o"`). In mock mode every agent runs an instant deterministic path → sub-ms → 0. **Fix:** resolve `.env` by absolute path from the file location:
+   ```python
+   from pathlib import Path
+   _REPO_ROOT = Path(__file__).resolve().parents[4]
+   _ENV_FILE = _REPO_ROOT / ".env"
+   # ...
+   model_config = SettingsConfigDict(env_file=str(_ENV_FILE), extra="ignore")
+   ```
+   Verified from `apps/api`: `demo_mode: False`, `deployment: gpt-4.1-mini`, real endpoint.
+4. **Production: app was in mock mode because the deploy defaulted `demoMode=true`.** `.env` is gitignored and never ships to the container; prod must get config from env vars set by IaC. `infra/bicep/main.bicep` had `param demoMode bool = true` AND `.github/workflows/deploy-azure.yml` never passed `demoMode`, so the container booted with `DEMO_MODE=true`. **Fix (both, belt + suspenders):** flipped bicep default to `param demoMode bool = false`, and added to the `az deployment group create --parameters` block: `demoMode=false` and `azureOpenAiApiVersion="${{ vars.AZURE_OPENAI_API_VERSION || '2025-04-01-preview' }}"`.
+
+### Files changed this session
+- `apps/api/app/services/orchestrator.py` — restored truncated tail + `max(1, round())` latency.
+- `apps/api/app/core/config.py` — absolute `.env` resolution (`pathlib`, `_REPO_ROOT`, `_ENV_FILE`).
+- `docker-compose.yml` — `DEMO_MODE: "false"`, added `env_file: - .env`, and pass-through of `AZURE_OPENAI_*` / `OPENAI_*` env vars (container previously had NO model keys, so it would mock even with the flag flipped).
+- `apps/web/components/AgentTraceGraph.tsx` — `formatLatency(ms)` helper: `<1000` → `"N ms"`, else `"N.Ns"`. (The lone `Safety and Boundary Agent` legitimately shows `1 ms` — it has no model call, pure local checks.)
+- `infra/bicep/main.bicep` — `demoMode` default `true`→`false`.
+- `.github/workflows/deploy-azure.yml` — pass `demoMode=false` + `azureOpenAiApiVersion`.
+- `.gitignore` — added `fedcred.json` (was untracked & not ignored; contents are Azure federated-credential *config* — `name/issuer/subject/audiences` — NOT a secret key, but shouldn't be in the repo).
+- Also synced the same `max(1, round())` timing fix into the gitignored staged copy `output/azure-appservice/api-stage/app/services/orchestrator.py` (not committed; `output/` is gitignored).
+
+### Verification
+- `python -m compileall apps/api/app` → exit 0 (no other files truncated).
+- `apps/api/check_live.py` (diagnostic script created this session) run by user from `apps/api`: `demo_mode: False`, `provider: azure-foundry`, `deployment: gpt-4.1-mini`, **`LIVE CALL OK -> {'ok': True}`**.
+- `smoke_test.ps1` (created this session, repo root) — create→analyze→trace against local API: **PASS — 11 agents, 0 at 0 ms, 0 degraded, 0 failed**, real latencies 1.3s–20.7s. User confirmed the **local UI** "Behind the scenes" panel now shows real per-agent times (7.7s, 12.7s, 20.6s, … `1 ms` for the verifier).
+- **NOTE: sandbox could NOT test the live Azure call** — egress is blocked by a SOCKS proxy (`ProxyError 403`). The live-call confirmation above came from the **user running `check_live.py` on their machine**, not the sandbox.
+
+### Commits / git (user pushed everything)
+- The mount's git locks corrupted the index again mid-session (`bad signature`, undeletable `.git/index.lock`/`HEAD.lock`/`refs/heads/main.lock`). One garbage commit landed during corruption (`f81c721`) that — despite a latency-fix message — contained ONLY favicon blobs. **User recovered on their own terminal** (`del .git\*.lock`, `del .git\index` + `git reset`, `git reset --soft HEAD~1`) and committed/pushed the real code. Per the user, **everything is pushed and they deployed** — at which point prod showed the 0 ms again, which is what surfaced root cause #4. **Then** the bicep + workflow fixes were made (above); these are committed/pushed by the user but **the redeploy + prod re-verification is still pending.**
+- Reminder (quirk #6/#7): **do not commit from the sandbox.** Have the user commit/push from their own terminal.
+
+### Remaining / immediate next steps
+1. **Verify GitHub repo secrets are non-empty** before trusting the redeploy: `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_DEPLOYMENT` (=`gpt-4.1-mini`). If blank, bicep substitutes `'not-configured'` (see `main.bicep` line ~61 `resolvedAzureOpenAiApiKey`) and live calls still fail → 0 ms even with `demoMode=false`.
+2. **Redeploy** (push to `main` triggers `deploy-azure.yml`, or run it from the Actions tab) and re-check the deployed "Behind the scenes" panel — expect real per-agent latencies, all `completed`, none at 0 ms. If still 0 ms after this, it's empty secrets (step 1).
+3. Optional cleanup: delete diagnostic `apps/api/check_live.py` (keep `smoke_test.ps1` as a regression test if desired); confirm `fedcred.json` ignore landed in the pushed tree.
+4. **Per explicit user instruction this session: do NOT add mock fallbacks to the Decision Framing or Safety/Boundary agents.** They intentionally have no fallback (they abort the run on live failure rather than degrade). Leave as-is.
+
+---
 
 ## Session Update (2026-06-11, continued #6 - Cowork redesign + Azure deploy)
 
