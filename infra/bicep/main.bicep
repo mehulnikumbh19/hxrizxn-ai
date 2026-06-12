@@ -23,7 +23,7 @@ param containerCpu string = '0.5'
 param containerMemory string = '1Gi'
 param webCpu string = '0.5'
 param webMemory string = '1Gi'
-param demoMode bool = true
+param demoMode bool = false
 
 @description('Optional real Foundry IQ endpoint. Leave blank for mock retrieval.')
 param foundryIqEndpoint string = ''

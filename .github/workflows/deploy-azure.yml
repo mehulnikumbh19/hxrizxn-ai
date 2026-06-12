@@ -51,4 +51,6 @@ jobs:
               foundryIqApiKey="${{ secrets.FOUNDRY_IQ_API_KEY }}" \
               azureOpenAiEndpoint="${{ secrets.AZURE_OPENAI_ENDPOINT }}" \
               azureOpenAiApiKey="${{ secrets.AZURE_OPENAI_API_KEY }}" \
-              azureOpenAiDeployment="${{ secrets.AZURE_OPENAI_DEPLOYMENT }}"
+              azureOpenAiDeployment="${{ secrets.AZURE_OPENAI_DEPLOYMENT }}" \
+              azureOpenAiApiVersion="${{ vars.AZURE_OPENAI_API_VERSION || '2025-04-01-preview' }}" \
+              demoMode=false
