@@ -2,6 +2,46 @@
 
 Date: 2026-06-11
 
+## Session Update (2026-06-11, continued #6 - Cowork redesign + Azure deploy)
+
+Status: Redesigned the web UI, recovered it after an external editor reverted one file, committed (`f575aee`), user pushed to `main`, and the GitHub Actions **deploy-azure** pipeline now runs end-to-end. The app is **live on Azure Container Apps** in `rg-hxrizxn-demo2`.
+
+### Done this session
+- **Full visual redesign** to "Microsoft Fluent 2 app shell + Brillance premium SaaS front door":
+  - `apps/web/app/globals.css` - reworked tokens to calm warm off-white surfaces (`--colorCanvas #f7f6f4`), hairline Fluent cards (`.panel`), ambient glow reserved for the landing (`.glow`, `.app-shell--landing`), frosted `.panel--glass` for the hero only, pill helpers (`.btn-neutral`, calmer 2-stop `--colorActionGradient`), `surface-inset` wells.
+  - `apps/web/components/HxrizxnApp.tsx` - segmented **pill nav** command bar (animated `layoutId="nav-pill"`), centered Brillance **landing** (eyebrow chip, big headline, refined pill prompt box that pre-fills intake, quick-pick chips, soft-glow dashboard preview), intake on inset fields + pill buttons, Fluent **command-bar `SectionHeader`** on the analysis screens.
+  - Font switched to **Plus Jakarta Sans** (`apps/web/app/layout.tsx` Google Fonts link + `--fontFamilyBase/Display`).
+  - **Removed all em dashes** from UI strings/comments (commas or `·`).
+- **Fixed the two broken graphs.** `ScenarioLattice.tsx` and `AgentTraceGraph.tsx` were rendering all React Flow nodes collapsed on one spot. Replaced both with **deterministic custom layouts** (no `@xyflow/react`): decision tree = Decision node + 3 color-coded branch cards joined by SVG curves; agent trace = clean vertical timeline with status dots + timing.
+- **Recovered from a mid-session revert.** An external editor (stale buffer) saved an *old dark-theme* version over `HxrizxnApp.tsx`, leaving `text-slate-*` markup on the new light theme (looked broken/washed-out). Re-wrote the full redesigned file via the Write tool; confirmed clean (0 `text-slate`, 0 em dashes, redesign markers present).
+
+### Commit & deploy
+- **`f575aee`** - "Redesign web UI: Fluent 2 app + Brillance landing, fix graphs, Plus Jakarta Sans, remove em dashes". Committed by the **user from their own terminal** (sandbox git was truncating the large file - see quirk #7), pushed to `origin/main`; verified `origin/main` has the redesign.
+- **GitHub Actions `deploy-azure` is now wired and working.** Setup done this session:
+  - OIDC service principal `hxrizxn-gh-deploy`; federated credential subject `repo:mehulnikumbh19/hxrizxn-ai:ref:refs/heads/main`; **Owner** on the subscription (required because the Bicep assigns the AcrPull role).
+  - Repo **secrets**: `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, `AZURE_RESOURCE_GROUP`, `AZURE_ACR_NAME`, `POSTGRES_ADMIN_PASSWORD`, `AZURE_OPENAI_*`, `FOUNDRY_IQ_*`.
+  - Repo **variable** `AZURE_LOCATION = eastus2` (Variables tab, NOT Secrets).
+  - Two config fixes were required: the existing ACR `hxr45810acr` lives in **`rg-hxrizxn-demo2`** (not `rg-hxrizxn-demo`) -> set `AZURE_RESOURCE_GROUP=rg-hxrizxn-demo2`; and that RG is in **`eastus2`** -> set `AZURE_LOCATION=eastus2`.
+- **Deployed successfully to Azure Container Apps** in `rg-hxrizxn-demo2` (web container app `hxrizxn-web`, env `hxrizxn`). Get the live URL:
+  - `az containerapp show -n hxrizxn-web -g rg-hxrizxn-demo2 --query "properties.configuration.ingress.fqdn" -o tsv` (open as https://…), or
+  - `az deployment group show -g rg-hxrizxn-demo2 -n main --query "properties.outputs.webUrl.value" -o tsv`.
+- Note: this Container Apps deploy is **separate** from the older App Service demo site `https://hxrizxn-web-f536eeb5.azurewebsites.net` (suffix `f536eeb5`). An empty `rg-hxrizxn-demo` was left by the first run (group only, no resources) - safe to `az group delete`.
+
+### Verification
+- This exact redesign earlier **compiled clean** (`✓ Compiled successfully`) and **`tsc --noEmit` exit 0** via a reconstructed native-fs `/tmp` build. The Azure pipeline then built + deployed it end-to-end (the real production build), which is the strongest confirmation.
+
+### NEW / continuing sandbox quirks
+7. **The mount intermittently serves a STALE/TRUNCATED read of large editor-written files to bash & git** (`HxrizxnApp.tsx` ~51KB read back as ~28KB / 694 lines by `wc`/`cat`/`git add`), while `ripgrep` and the Read file-tool saw it complete. A sandbox `git add`+commit staged a **truncated half-file**. **Do NOT commit large changed files from the sandbox** - have the user commit/push from their own terminal, or verify the staged blob (`git show :path | grep <marker>`) before committing. The Write/Edit file-tools DO write the full file to Windows correctly; only bash/git *reads* go stale.
+8. **An external editor re-saved an old buffer over a file mid-session**, silently reverting it. If files mysteriously revert, check for stale editor buffers / `.fuse_hidden*` copies and re-apply.
+
+### Remaining / next
+1. Optionally bump `actions/checkout@v4`/`azure/login@v2` (Node 20 deprecation warning - harmless until ~Sept 2026).
+2. Optionally narrow the SP role from subscription **Owner** to least-privilege (note: RG-scoped won't cover the `az group create` step; could drop that step since the RG already exists).
+3. Delete the empty `rg-hxrizxn-demo` and any leftover `.next_old*` dirs.
+4. Pre-existing uncommitted churn (`next-env.d.ts`, `tsconfig.json`, `evals/latest-results.json`, `packages/types/schemas/*`) still uncommitted - unchanged this session.
+
+---
+
 ## Session Update (2026-06-11, continued #5 — shell-capable agent)
 
 Status: Completed and committed the remaining approved frontend batch (items 2, 3a, 3b). No push/deploy performed (awaiting user confirmation).
