@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="apps/web/public/logo.png" alt="Hxrizxn AI" width="120" />
+  <img src="apps/web/public/android-chrome-512x512.png" alt="Hxrizxn AI" width="110" />
 </p>
 
 <h1 align="center">Hxrizxn AI</h1>
