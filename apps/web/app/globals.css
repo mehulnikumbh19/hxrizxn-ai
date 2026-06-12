@@ -1,18 +1,162 @@
 @import "tailwindcss";
 @import "@xyflow/react/dist/style.css";
 
+/* ===============================================================
+   HXRIZXN AI - DESIGN SYSTEM
+   Microsoft Fluent 2 (app surfaces) + Brillance SaaS polish (front door)
+   Calm warm off-white surfaces, hairline cards, ambient glow on the
+   landing only, refined typography, pill controls.
+   =============================================================== */
+
 :root {
-  color-scheme: dark;
-  --background: #080912;
-  --foreground: #f7f7fb;
-  --muted: #a5adbd;
-  --panel: rgba(18, 22, 39, 0.78);
-  --line: rgba(255, 255, 255, 0.14);
-  --teal: #50e3c2;
-  --amber: #f4b95f;
-  --rose: #ff6b8a;
-  --violet: #9b5cff;
+  color-scheme: light;
+
+  /* Neutral backgrounds - warm, calm off-white (Brillance mood) */
+  --colorCanvas: #f7f6f4;
+  --colorCanvasSubtle: #f2f1ee;
+  --colorNeutralBackground1: #f7f6f4;
+  --colorNeutralBackground2: #f2f1ee;
+  --colorNeutralBackground3: #ffffff;
+  --colorNeutralBackground4: #efeeea;
+  --colorNeutralBackground5: #ffffff;
+  --colorNeutralBackground6: #e8e7e2;
+  --colorSubtleBackground: transparent;
+  --colorSubtleBackgroundHover: rgba(17, 24, 39, 0.04);
+  --colorSubtleBackgroundPressed: rgba(17, 24, 39, 0.06);
+
+  /* Neutral foreground - slightly warm ink */
+  --colorNeutralForeground1: #1d1c1a;
+  --colorNeutralForeground2: #3d3b38;
+  --colorNeutralForeground3: #65625d;
+  --colorNeutralForeground4: #8a8782;
+  --colorNeutralForegroundDisabled: #bcb9b3;
+  --colorNeutralForegroundOnBrand: #ffffff;
+
+  /* Neutral strokes - hairlines */
+  --colorNeutralStroke1: #dcdad4;
+  --colorNeutralStroke2: #e7e5df;
+  --colorNeutralStrokeSubtle: rgba(17, 24, 39, 0.06);
+  --colorNeutralStrokeAccessible: #65625d;
+  --colorNeutralStrokeOnBrand: #ffffff;
+
+  /* Brand (Fluent web blue) + refined indigo companion */
+  --colorBrandBackground: #0f6cbd;
+  --colorBrandBackgroundHover: #115ea3;
+  --colorBrandBackgroundPressed: #0c3b5e;
+  --colorBrandBackgroundSelected: #115ea3;
+  --colorBrandForeground1: #0f6cbd;
+  --colorBrandForeground2: #115ea3;
+  --colorBrandStroke1: #0f6cbd;
+  --colorAccentIndigo: #4b4fc4;
+  --colorAccentPurple: #5b5fc7;
+  --colorAccentMagenta: #c238b3;
+
+  /* Wordmark gradient (3-stop, reserved for brand marks) */
+  --colorAccentGradient: linear-gradient(96deg, #0f6cbd 0%, #4b4fc4 54%, #8a4fd6 100%);
+  /* Action gradient (calmer, 2-stop blue→indigo for primary CTAs) */
+  --colorActionGradient: linear-gradient(96deg, #0f6cbd 0%, #4b54c8 100%);
+
+  /* Status */
+  --colorStatusSuccessBackground: #f0f8f0;
+  --colorStatusSuccessForeground: #0e7a0e;
+  --colorStatusWarningBackground: #fdf8f0;
+  --colorStatusWarningForeground: #b3550a;
+  --colorStatusDangerBackground: #fdf3f3;
+  --colorStatusDangerForeground: #c50f1f;
+  --colorStatusInfoBackground: #eef4fb;
+  --colorStatusInfoForeground: #0f6cbd;
+
+  /* Elevation - soft, premium, low-contrast */
+  --shadow2: 0 1px 2px rgba(20, 20, 30, 0.05), 0 0 1px rgba(20, 20, 30, 0.04);
+  --shadow4: 0 2px 8px rgba(20, 20, 30, 0.05), 0 1px 2px rgba(20, 20, 30, 0.04);
+  --shadow8: 0 8px 24px rgba(20, 20, 30, 0.07), 0 2px 6px rgba(20, 20, 30, 0.04);
+  --shadow16: 0 16px 40px rgba(20, 20, 30, 0.09), 0 4px 10px rgba(20, 20, 30, 0.04);
+  --shadow28: 0 24px 56px rgba(20, 20, 30, 0.11), 0 8px 16px rgba(20, 20, 30, 0.05);
+  --shadow64: 0 36px 80px rgba(20, 20, 30, 0.14), 0 12px 24px rgba(20, 20, 30, 0.06);
+
+  /* Radius ramp */
+  --borderRadiusNone: 0px;
+  --borderRadiusSmall: 3px;
+  --borderRadiusMedium: 6px;
+  --borderRadiusLarge: 8px;
+  --borderRadiusXLarge: 12px;
+  --borderRadiusXXLarge: 18px;
+  --borderRadiusCircular: 10000px;
+
+  /* Spacing (4px grid) */
+  --spacingHorizontalXXS: 2px;
+  --spacingHorizontalXS: 4px;
+  --spacingHorizontalSNudge: 6px;
+  --spacingHorizontalS: 8px;
+  --spacingHorizontalMNudge: 10px;
+  --spacingHorizontalM: 12px;
+  --spacingHorizontalL: 16px;
+  --spacingHorizontalXL: 20px;
+  --spacingHorizontalXXL: 24px;
+  --spacingHorizontalXXXL: 32px;
+  --spacingVerticalS: 8px;
+  --spacingVerticalM: 12px;
+  --spacingVerticalL: 16px;
+  --spacingVerticalXL: 20px;
+  --spacingVerticalXXL: 24px;
+
+  /* Type ramp */
+  --fontFamilyBase: "Plus Jakarta Sans", "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, "Roboto", "Helvetica Neue", sans-serif;
+  --fontFamilyDisplay: "Plus Jakarta Sans", "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  --fontFamilyMonospace: "Cascadia Code", "Fira Code", Consolas, monospace;
+  --fontSizeBase100: 10px;
+  --fontSizeBase200: 12px;
+  --fontSizeBase300: 14px;
+  --fontSizeBase400: 16px;
+  --fontSizeBase500: 20px;
+  --fontSizeBase600: 24px;
+  --fontSizeHero700: 28px;
+  --fontSizeHero800: 32px;
+  --fontSizeHero900: 40px;
+  --fontSizeHero1000: 68px;
+  --fontWeightRegular: 400;
+  --fontWeightMedium: 500;
+  --fontWeightSemibold: 600;
+  --fontWeightBold: 700;
+  --lineHeightBase100: 14px;
+  --lineHeightBase200: 16px;
+  --lineHeightBase300: 20px;
+  --lineHeightBase400: 22px;
+  --lineHeightBase500: 28px;
+  --lineHeightBase600: 32px;
+  --lineHeightHero700: 36px;
+  --lineHeightHero800: 40px;
+  --lineHeightHero900: 52px;
+  --lineHeightHero1000: 92px;
+
+  /* Motion */
+  --durationFast: 100ms;
+  --durationNormal: 200ms;
+  --durationSlow: 300ms;
+  --curveEasyEase: cubic-bezier(0.33, 0, 0.67, 1);
+  --curveDecelerateMax: cubic-bezier(0, 0, 0, 1);
+  --curveAccelerateMax: cubic-bezier(1, 0, 1, 1);
+
+  /* Backward-compat aliases */
+  --background: var(--colorNeutralBackground1);
+  --foreground: var(--colorNeutralForeground1);
+  --muted: var(--colorNeutralForeground3);
+  --subtle-text: var(--colorNeutralForeground4);
+  --neutral-bg-1: var(--colorNeutralBackground1);
+  --neutral-bg-2: var(--colorNeutralBackground3);
+  --neutral-bg-3: var(--colorNeutralBackground5);
+  --neutral-stroke-1: var(--colorNeutralStroke1);
+  --neutral-stroke-2: var(--colorNeutralStroke2);
+  --brand-primary: var(--colorBrandBackground);
+  --brand-hover: var(--colorBrandBackgroundHover);
+  --brand-pressed: var(--colorBrandBackgroundPressed);
+  --teal: var(--colorStatusSuccessForeground);
+  --amber: var(--colorStatusWarningForeground);
+  --rose: var(--colorStatusDangerForeground);
+  --violet: var(--colorAccentPurple);
 }
+
+/* =============================== BASE =============================== */
 
 * {
   box-sizing: border-box;
@@ -25,10 +169,23 @@ html {
 body {
   min-height: 100vh;
   margin: 0;
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-  letter-spacing: 0;
+  background: var(--colorCanvas);
+  color: var(--colorNeutralForeground1);
+  font-family: var(--fontFamilyBase);
+  font-size: var(--fontSizeBase300);
+  line-height: var(--lineHeightBase300);
+  letter-spacing: -0.006em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: rgba(15, 108, 189, 0.16);
+  color: var(--colorNeutralForeground1);
+}
+
+::placeholder {
+  color: var(--colorNeutralForeground4);
 }
 
 button,
@@ -42,43 +199,212 @@ button {
   cursor: pointer;
 }
 
+h1, h2, h3 {
+  font-family: var(--fontFamilyDisplay);
+  letter-spacing: -0.022em;
+}
+
+/* ============================ APP SHELL ============================ */
+/* App surfaces stay calm and flat (Fluent). The landing earns a soft glow. */
+
 .app-shell {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 20% 10%, rgba(80, 227, 194, 0.12), transparent 28rem),
-    radial-gradient(circle at 80% 0%, rgba(244, 185, 95, 0.1), transparent 24rem),
-    #080912;
+  background: var(--colorCanvas);
 }
 
 .app-shell--landing {
   min-height: 100vh;
   background:
-    linear-gradient(180deg, rgba(8, 9, 18, 0.08), rgba(8, 9, 18, 0.96) 560px),
-    linear-gradient(0deg, rgba(8, 9, 18, 0.46), rgba(8, 9, 18, 0.46)),
-    url("/website-design.png") top center / min(1500px, 100vw) auto no-repeat,
-    #080912;
+    radial-gradient(1100px 720px at 78% -16%, rgba(75, 84, 200, 0.10), transparent 60%),
+    radial-gradient(880px 600px at 10% 6%, rgba(15, 108, 189, 0.07), transparent 58%),
+    var(--colorCanvas);
+  background-attachment: fixed;
 }
+
+/* Ambient glow element - used behind landing hero / workspace previews */
+.glow {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(70px);
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* ============================== CARDS ============================== */
+/* Clean Fluent data cards on calm canvas - hairline border + soft shadow. */
 
 .panel {
-  border: 1px solid var(--line);
-  background: var(--panel);
-  backdrop-filter: blur(16px);
-  box-shadow: 0 18px 80px rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--colorNeutralStrokeSubtle);
+  background: var(--colorNeutralBackground3);
+  border-radius: var(--borderRadiusXXLarge);
+  box-shadow: var(--shadow2);
+  transition:
+    box-shadow var(--durationNormal) var(--curveEasyEase),
+    transform var(--durationNormal) var(--curveEasyEase),
+    border-color var(--durationNormal) var(--curveEasyEase);
 }
 
+.panel:hover {
+  box-shadow: var(--shadow4);
+}
+
+.panel--lift:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow16);
+  border-color: rgba(15, 108, 189, 0.22);
+}
+
+/* Frosted glass - reserved for the Brillance landing composition */
+.panel--glass {
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.72);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  backdrop-filter: blur(24px) saturate(1.4);
+  box-shadow: var(--shadow16);
+}
+
+/* Inset surface - for nested wells inside a card */
+.surface-inset {
+  background: var(--colorCanvasSubtle);
+  border: 1px solid var(--colorNeutralStrokeSubtle);
+  border-radius: var(--borderRadiusXLarge);
+}
+
+/* ========================= GRADIENT HELPERS ========================= */
+
+.text-gradient {
+  background: var(--colorAccentGradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.bg-gradient-brand {
+  background: var(--colorActionGradient);
+}
+
+/* ============================== BUTTONS ============================== */
+
+.btn-gradient {
+  background: var(--colorActionGradient);
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(15, 108, 189, 0.24);
+  transition:
+    box-shadow var(--durationNormal) var(--curveEasyEase),
+    transform var(--durationNormal) var(--curveEasyEase),
+    filter var(--durationNormal) var(--curveEasyEase);
+}
+
+.btn-gradient:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 8px 22px rgba(35, 70, 170, 0.30);
+  transform: translateY(-1px);
+}
+
+.btn-gradient:active {
+  filter: brightness(0.97);
+  transform: translateY(0);
+}
+
+/* Subtle neutral button - Brillance pill */
+.btn-neutral {
+  background: var(--colorNeutralBackground3);
+  color: var(--colorNeutralForeground1);
+  border: 1px solid var(--colorNeutralStroke1);
+  box-shadow: var(--shadow2);
+  transition:
+    box-shadow var(--durationNormal) var(--curveEasyEase),
+    background var(--durationNormal) var(--curveEasyEase),
+    transform var(--durationNormal) var(--curveEasyEase);
+}
+
+.btn-neutral:hover {
+  box-shadow: var(--shadow8);
+  transform: translateY(-1px);
+}
+
+/* ============================ FOCUS RING ============================ */
+
 .focus-ring:focus-visible {
-  outline: 2px solid var(--teal);
+  outline: 2px solid var(--colorBrandStroke1);
   outline-offset: 2px;
 }
 
+/* ============================ ANIMATIONS ============================ */
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes floatYSmall {
+  0%, 100% { transform: translateY(0) rotate(var(--tile-rotate, 0deg)); }
+  50% { transform: translateY(-8px) rotate(var(--tile-rotate, 0deg)); }
+}
+
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+@keyframes nodeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spinSlow {
+  to { transform: rotate(360deg); }
+}
+
+.float-tile {
+  animation: floatYSmall 7s var(--curveEasyEase) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .float-tile,
+  .animate-pulse {
+    animation: none;
+  }
+}
+
+/* ========================= REACT FLOW OVERRIDES ========================= */
+
 .react-flow__node {
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(18, 22, 39, 0.92);
-  color: white;
-  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1px solid var(--colorNeutralStroke2);
+  border-radius: 12px;
+  color: var(--colorNeutralForeground1);
+  font-size: var(--fontSizeBase200);
+  line-height: 1.45;
+  box-shadow: var(--shadow2);
+  animation: nodeIn 420ms var(--curveDecelerateMax) both;
 }
 
 .react-flow__attribution {
   display: none;
+}
+
+/* ============================ SCROLLBAR ============================ */
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d3d1cb;
+  border-radius: var(--borderRadiusCircular);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #bcb9b3;
 }
