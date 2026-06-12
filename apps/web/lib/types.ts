@@ -20,6 +20,13 @@ export type SafetyFlag = {
   recommended_boundary: string;
 };
 
+export type GroundedClaim = {
+  text: string;
+  status: "grounded" | "unverified";
+  source: string | null;
+  source_title: string | null;
+};
+
 export type FramedDecision = {
   case_id: string;
   title: string;
@@ -28,6 +35,7 @@ export type FramedDecision = {
   fears: string[];
   constraints: string[];
   assumptions: string[];
+  grounded_assumptions: GroundedClaim[];
   missing_information: string[];
   candidate_options: DecisionOption[];
   high_stakes_flags: SafetyFlag[];
@@ -68,6 +76,8 @@ export type RiskItem = {
   detectability_band: Band;
   mitigation: string;
   black_swan: boolean;
+  grounding_status: "grounded" | "unverified";
+  grounding_source: string | null;
 };
 
 export type ExperimentPlan = {

@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AgentTraceGraph } from "@/components/AgentTraceGraph";
+import { GroundingPanel } from "@/components/GroundingPanel";
 import { ImpactStack, OptionalityQuadrant, RadarChart, RiskHeatmap } from "@/components/DecisionCharts";
 import { ScenarioLattice } from "@/components/ScenarioLattice";
 import { ScoreBar } from "@/components/ScoreBar";
@@ -1012,6 +1013,16 @@ function Ripple({ data, setScreen }: { data: AnalysisPackage; setScreen: (screen
           />
           <ImpactStack data={data} />
         </div>
+      </div>
+      <div className="panel mt-5 p-5">
+        <PanelHeader
+          title="Evidence & honesty: what's grounded vs. unverified"
+          caption="Every assumption and risk is checked against the Foundry IQ knowledge base. Grounded claims cite a source; the agent abstains on anything it can't verify rather than guessing."
+        />
+        <GroundingPanel
+          assumptions={data.framed_decision.grounded_assumptions}
+          risks={data.risks}
+        />
       </div>
       <div className="mt-5 grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
         <div className="panel p-5">

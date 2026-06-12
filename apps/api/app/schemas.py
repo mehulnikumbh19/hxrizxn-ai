@@ -16,6 +16,21 @@ class Citation(BaseModel):
     confidence: Band = "medium"
 
 
+class GroundedClaim(BaseModel):
+    """A single agent claim tagged with its evidential support.
+
+    Either the claim is *grounded* in a retrieved source (``status="grounded"``
+    with ``source`` set), or the agent *abstains* from asserting it as fact
+    (``status="unverified"``) because no evidence supports it. This is the
+    cite-or-abstain contract that makes the reasoning trustworthy and visible.
+    """
+
+    text: str
+    status: Literal["grounded", "unverified"] = "unverified"
+    source: str | None = None        # citation source path when grounded
+    source_title: str | None = None  # human-readable citation title when grounded
+
+
 class DecisionOption(BaseModel):
     option_key: str
     label: str
@@ -50,6 +65,7 @@ class FramedDecision(BaseModel):
     fears: list[str]
     constraints: list[str]
     assumptions: list[str]
+    grounded_assumptions: list[GroundedClaim] = Field(default_factory=list)
     missing_information: list[str]
     candidate_options: list[DecisionOption]
     high_stakes_flags: list[SafetyFlag] = Field(default_factory=list)
@@ -111,6 +127,8 @@ class RiskItem(BaseModel):
     detectability_band: Band
     mitigation: str
     black_swan: bool = False
+    grounding_status: Literal["grounded", "unverified"] = "unverified"
+    grounding_source: str | None = None
 
     @field_validator("risk_type", mode="before")
     @classmethod

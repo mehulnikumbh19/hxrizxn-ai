@@ -11,6 +11,6 @@ def retrieve_evidence(framed: FramedDecision, knowledge: KnowledgeProvider) -> l
         case_id=framed.case_id,
         query=query_str,
         decision_type=framed.decision_type,
-        top_k=4,
+        top_k=6,
     )
     return knowledge.retrieve(query)

@@ -1,7 +1,30 @@
 from __future__ import annotations
-from app.schemas import FramedDecision, RiskItem, ScenarioSpec
+from app.schemas import Citation, FramedDecision, RiskItem, ScenarioSpec
 from app.providers.model import ModelProvider, ModelRequest
 from app.core.config import get_settings
+
+
+def _tag_grounding(risks: list[RiskItem], evidence: list[Citation]) -> list[RiskItem]:
+    """Cite-or-abstain for risks. A risk is 'grounded' when its name+mitigation
+    overlaps a retrieved source; otherwise 'unverified'. Black-swan risks are
+    speculative by nature, so any black swan without supporting evidence is
+    explicitly marked unverified rather than asserted as established fact."""
+    for risk in risks:
+        terms = {t.lower().strip(".,!?:;") for t in (risk.risk_name + " " + risk.mitigation).split() if len(t) > 4}
+        best_overlap = 0
+        best_source = None
+        for cit in evidence:
+            text = (cit.title + " " + cit.snippet).lower()
+            overlap = sum(1 for t in terms if t in text)
+            if overlap > best_overlap:
+                best_overlap, best_source = overlap, cit.source
+        if best_overlap >= 1 and not risk.black_swan:
+            risk.grounding_status = "grounded"
+            risk.grounding_source = best_source
+        else:
+            risk.grounding_status = "unverified"
+            risk.grounding_source = None
+    return risks
 
 
 def identify_risks(framed: FramedDecision, scenarios: list[ScenarioSpec], model: ModelProvider | None = None) -> list[RiskItem]:
@@ -71,7 +94,7 @@ def identify_risks(framed: FramedDecision, scenarios: list[ScenarioSpec], model:
                     black_swan=False,
                 )
             )
-        return risks
+        return _tag_grounding(risks, framed.evidence)
 
     # Live Path using LLM
     system_prompt = (
@@ -143,4 +166,4 @@ def identify_risks(framed: FramedDecision, scenarios: list[ScenarioSpec], model:
                 black_swan=False,
             )
         )
-    return risks
+    return _tag_grounding(risks, framed.evidence)

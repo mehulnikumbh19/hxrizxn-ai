@@ -91,6 +91,9 @@ export const fallbackPackage: AnalysisPackage = {
     fears: ["Burn rate", "Isolation", "Romanticizing founder life"],
     constraints: ["8 months savings", "Stable job income"],
     assumptions: ["The riskiest assumptions can be tested before resignation."],
+    grounded_assumptions: [
+      { text: "The riskiest assumptions can be tested before resignation.", status: "grounded", source: "demo-data/decision-science-brief.md", source_title: "Decision Science Brief" }
+    ],
     missing_information: ["Exact burn floor", "Customer evidence", "Support plan"],
     candidate_options: [
       { option_key: "quit_now", label: "Quit now", description: "Pursue full-time immediately." },
@@ -160,8 +163,8 @@ export const fallbackPackage: AnalysisPackage = {
     { scenario_key: "stress", domain: "health_energy", order_level: 2, impact_direction: "negative", severity: 5, explanation: "Isolation and ambiguity compound decision fatigue." }
   ],
   risks: [
-    { scenario_key: "base", risk_name: "Runway compression", risk_type: "execution", likelihood_band: "medium", severity_band: "high", detectability_band: "medium", mitigation: "Define a cash floor and stop condition.", black_swan: false },
-    { scenario_key: "stress", risk_name: "External shock during low-liquidity window", risk_type: "black_swan", likelihood_band: "low", severity_band: "very_high", detectability_band: "low", mitigation: "Keep emergency reserve and re-entry plan.", black_swan: true }
+    { scenario_key: "base", risk_name: "Runway compression", risk_type: "execution", likelihood_band: "medium", severity_band: "high", detectability_band: "medium", mitigation: "Define a cash floor and stop condition.", black_swan: false, grounding_status: "grounded", grounding_source: "demo-data/decision-science-brief.md" },
+    { scenario_key: "stress", risk_name: "External shock during low-liquidity window", risk_type: "black_swan", likelihood_band: "low", severity_band: "very_high", detectability_band: "low", mitigation: "Keep emergency reserve and re-entry plan.", black_swan: true, grounding_status: "unverified", grounding_source: null }
   ],
   experiment_plan: {
     plan_name: "30-day reversible HORIZON-X validation sprint",

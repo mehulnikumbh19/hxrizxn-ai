@@ -170,7 +170,7 @@ class HorizonXWorkflow:
         framed.evidence = evidence
 
         # 3. Assumption Miner Agent
-        assumptions, missing_info = _run_agent(
+        assumptions, grounded_assumptions, missing_info = _run_agent(
             db,
             case.id,
             "Assumption Miner Agent",
@@ -179,6 +179,7 @@ class HorizonXWorkflow:
             fallback=lambda: mine_assumptions(framed, evidence, self.mock_model),
         )
         framed.assumptions = assumptions
+        framed.grounded_assumptions = grounded_assumptions
         framed.missing_information = missing_info
 
         # 4. Scenario Lattice Agent
@@ -414,5 +415,3 @@ class HorizonXWorkflow:
         case.updated_at = _utcnow()
         db.add(case)
         db.commit()
-
-

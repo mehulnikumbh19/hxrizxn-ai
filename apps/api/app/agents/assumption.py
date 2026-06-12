@@ -1,10 +1,31 @@
 from __future__ import annotations
-from app.schemas import Citation, FramedDecision
+from app.schemas import Citation, FramedDecision, GroundedClaim
 from app.providers.model import ModelProvider, ModelRequest
 from app.core.config import get_settings
 
 
-def mine_assumptions(framed: FramedDecision, evidence: list[Citation], model: ModelProvider | None = None) -> tuple[list[str], list[str]]:
+def _ground_claims(claims: list[str], evidence: list[Citation]) -> list[GroundedClaim]:
+    """Cite-or-abstain: tag each claim as grounded in a retrieved source, or
+    unverified when no evidence supports it. A claim is grounded when it shares
+    enough meaningful terms with a citation's title+snippet."""
+    grounded: list[GroundedClaim] = []
+    for claim in claims:
+        claim_terms = {t.lower().strip(".,!?:;") for t in claim.split() if len(t) > 4}
+        best: tuple[int, Citation | None] = (0, None)
+        for cit in evidence:
+            text = f"{cit.title} {cit.snippet}".lower()
+            overlap = sum(1 for t in claim_terms if t in text)
+            if overlap > best[0]:
+                best = (overlap, cit)
+        if best[0] >= 1 and best[1] is not None:
+            grounded.append(GroundedClaim(text=claim, status="grounded",
+                                          source=best[1].source, source_title=best[1].title))
+        else:
+            grounded.append(GroundedClaim(text=claim, status="unverified"))
+    return grounded
+
+
+def mine_assumptions(framed: FramedDecision, evidence: list[Citation], model: ModelProvider | None = None) -> tuple[list[str], list[GroundedClaim], list[str]]:
     """Surface hidden assumptions and data gaps from the decision brief and evidence bundle."""
     settings = get_settings()
 
@@ -39,7 +60,7 @@ def mine_assumptions(framed: FramedDecision, evidence: list[Citation], model: Mo
                 if "Runway is the primary survival metric under high career uncertainty." not in assumptions:
                     assumptions.append("Runway is the primary survival metric under high career uncertainty.")
 
-        return assumptions, missing_info
+        return assumptions, _ground_claims(assumptions, evidence), missing_info
 
     # Live Path using LLM
     system_prompt = (
@@ -65,4 +86,5 @@ def mine_assumptions(framed: FramedDecision, evidence: list[Citation], model: Mo
     }
 
     result = model.complete_json(ModelRequest(system_prompt=system_prompt, user_payload=payload, schema_name="AssumptionMining"))
-    return result.get("assumptions", []), result.get("missing_information", [])
+    assumptions = result.get("assumptions", [])
+    return assumptions, _ground_claims(assumptions, evidence), result.get("missing_information", [])
