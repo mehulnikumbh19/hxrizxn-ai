@@ -3,6 +3,11 @@
 import { Activity, CheckCircle2 } from "lucide-react";
 import type { AgentTraceView } from "@/lib/types";
 
+function formatLatency(ms: number): string {
+  if (ms < 1000) return `${ms} ms`;
+  return `${(ms / 1000).toFixed(1)}s`;
+}
+
 export function AgentTraceGraph({ trace }: { trace: AgentTraceView[] }) {
   return (
     <div className="surface-inset h-[350px] overflow-y-auto p-4">
@@ -33,7 +38,7 @@ export function AgentTraceGraph({ trace }: { trace: AgentTraceView[] }) {
                     {item.agent_name}
                   </span>
                   <span className="shrink-0 text-[11px] font-medium text-[var(--colorNeutralForeground3)]">
-                    {item.latency_ms} ms
+                    {formatLatency(item.latency_ms)}
                   </span>
                 </div>
                 <span
