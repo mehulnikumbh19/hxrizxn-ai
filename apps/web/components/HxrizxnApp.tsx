@@ -1096,7 +1096,7 @@ function Experiment({ data, setScreen }: { data: AnalysisPackage; setScreen: (sc
    ================================================================ */
 
 function Memo({ data }: { data: AnalysisPackage; setScreen: (screen: "comparison") => void }) {
-  const reportUrl = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/cases/${data.case_id}/report`;
+  const reportUrl = `${process.env.NEXT_PUBLIC_API_URL || ""}/api/cases/${data.case_id}/report`;
   const citations = useMemo(() => data.memo.citations.slice(0, 4), [data.memo.citations]);
   return (
     <section className="mx-auto max-w-5xl px-6 pb-20 pt-8">

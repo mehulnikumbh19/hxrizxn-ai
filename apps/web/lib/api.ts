@@ -1,6 +1,10 @@
 import type { AnalysisPackage } from "./types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// Empty string -> the browser calls the web app's own origin (e.g. "/api/cases"),
+// which the Next route handler at app/api/[...path]/route.ts proxies to the backend.
+// This avoids baking a backend URL into the client bundle and avoids cross-origin CORS.
+// Local dev sets NEXT_PUBLIC_API_URL=http://localhost:8000 in .env for a direct call.
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 const ANALYSIS_TIMEOUT_MS = 210_000;
 
 async function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit = {}, timeoutMs = ANALYSIS_TIMEOUT_MS) {
