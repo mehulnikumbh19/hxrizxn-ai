@@ -61,18 +61,36 @@ export function RadarChart({ data }: { data: AnalysisPackage }) {
 export function RiskHeatmap({ data }: { data: AnalysisPackage }) {
   const scenarios = data.scenarios.map((scenario) => scenario.scenario_key);
   const risks = [...new Set(data.risks.map((risk) => risk.risk_name))].slice(0, 8);
-  const severity = { low: 1, medium: 2, high: 3, very_high: 4 };
+  const severity: Record<string, number> = { low: 1, medium: 2, high: 3, very_high: 4 };
+  const truncate = (label: string, max = 36) =>
+    label.length > max ? `${label.slice(0, max - 1)}…` : label;
   const values = risks.flatMap((riskName, y) =>
     scenarios.map((scenario, x) => {
       const risk = data.risks.find((item) => item.risk_name === riskName && item.scenario_key === scenario);
-      return [x, y, risk ? severity[risk.severity_band] : 0];
+      const value = risk ? severity[risk.severity_band] ?? 0 : 0;
+      return [x, y, value];
     })
   );
   const option = {
-    tooltip: {},
-    grid: { top: 16, right: 20, bottom: 76, left: 168 },
+    tooltip: {
+      formatter: (params: { dataIndex: number; data: number[] }) => {
+        const riskName = risks[params.data[1]] ?? "";
+        const scenario = scenarios[params.data[0]] ?? "";
+        return `${riskName}<br/>${scenario}`;
+      }
+    },
+    grid: { top: 16, right: 24, bottom: 76, left: 24, containLabel: true },
     xAxis: { type: "category", data: scenarios, axisLabel: { color: textMuted } },
-    yAxis: { type: "category", data: risks, axisLabel: { color: textMuted } },
+    yAxis: {
+      type: "category",
+      data: risks,
+      axisLabel: {
+        color: textMuted,
+        formatter: (value: string) => truncate(value),
+        width: 220,
+        overflow: "truncate"
+      }
+    },
     visualMap: {
       min: 0,
       max: 4,
@@ -92,7 +110,7 @@ export function RiskHeatmap({ data }: { data: AnalysisPackage }) {
       }
     ]
   };
-  return <ReactECharts option={option} style={{ height: 360 }} />;
+  return <ReactECharts option={option} style={{ height: 360, width: "100%" }} />;
 }
 
 export function ImpactStack({ data }: { data: AnalysisPackage }) {
