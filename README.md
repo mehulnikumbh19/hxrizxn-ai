@@ -4,7 +4,7 @@
 
 <h1 align="center">Hxrizxn AI</h1>
 
-<p align="center"><em>Pronounced "Horizon". See beyond the obvious future.</em></p>
+<p align="center"><em>Take the word HORIZON. Now solve for x.</em></p>
 
 <p align="center">
   <a href="https://github.com/microsoft/agentsleague"><img src="https://img.shields.io/badge/Agents%20League-2026-blue" alt="Agents League 2026" /></a>
@@ -15,10 +15,33 @@
   <img src="https://img.shields.io/badge/License-MIT-yellow" alt="MIT" />
 </p>
 
-> Most AI tools give you an answer.
-> Hxrizxn gives you your **futures**: rendered, stress-tested, scored for regret, and argued over by eleven specialist reasoning agents before anyone dares to recommend anything.
+```text
+H O R I Z O N      <- a word about certainty: the line you can already see
+H x R I Z x N      <- our word: the same line, with the certainties crossed out
+  ^       ^
+  every o is a closed loop. every x is an open question.
+```
 
-It is a **multi-agent decision simulator** for life-changing choices: quitting a job, buying a house, moving countries, going back to school. It does not tell you what to do. It shows you what each path *becomes*, two and three consequences deep, then designs a cheap, reversible experiment so you can test the future before you buy it.
+---
+
+## ✗ Why the x?
+
+An **o** is a circle. Closed. Finished. Known.
+
+An **x** is five different things at once, and Hxrizxn is built out of all five:
+
+| The x is... | In your life, that's... | In the product, that's... |
+|---|---|---|
+| 🔢 **An unknown variable** | The things you don't know you don't know | ⛏️ The **Assumption Miner** digs out the x's you never wrote down |
+| 🛣️ **A crossroads** | Quit / wait / test part-time: roads diverging | 🔱 The **Scenario Lattice** walks each road before you pay the toll |
+| 🌌 **Alternate futures** | The lives you might end up living | 🌅⚖️🌪️ Optimistic, base, and stress futures, each with a scorecard |
+| 📍 **A decision point** | The moment of no (or *some*) return | ↩️ **Reversibility scoring** + a safety gate that can stop the whole run |
+| ✖️ **Multiple outcomes** | One choice, consequences that multiply | 🕸️ **Ripple effects**, second and third order, across six life domains |
+
+> Most software is built around o's: answers, closure, false certainty.
+> **Hxrizxn is built around x's.** It doesn't close your question. It opens it *properly*, then helps you test the answer cheaply, before life grades it for you.
+
+That is the whole product, hiding in plain sight, inside the name.
 
 ---
 
@@ -32,15 +55,14 @@ It is a **multi-agent decision simulator** for life-changing choices: quitting a
 
 ---
 
-## 🎮 Don't read about it. Run it. Right here, in this README.
+## 🎮 Solve for x. Right here, in this README.
 
-Below is the canonical demo case, fed to the live pipeline. Eleven agents have already argued about it.
-**Your move: open the futures one by one.** (Condensed from a real Hxrizxn run.)
+Below is the canonical demo case, fed to the live pipeline. Eleven agents have already worked the equation, and it turns out to have **three roots**. Your move: open them one by one. *(Condensed from a real Hxrizxn run.)*
 
 > 🧑‍💻 *"I'm a software engineer with 3 years of experience and 8 months of savings. Do I quit my job to build an AI startup, wait 6 months, or test it part-time first?"*
 
 <details>
-<summary>🌅 <strong>FUTURE 1 of 3: Controlled Upside Branch</strong> · probability band ~20–30%</summary>
+<summary>🌅 <strong>x₁ = Controlled Upside Branch</strong> · probability band ~20–30%</summary>
 
 <br/>
 
@@ -56,23 +78,23 @@ You quit with a plan, not a prayer. First customers arrive in month 4. Savings d
 </details>
 
 <details>
-<summary>⚖️ <strong>FUTURE 2 of 3: Evidence-Building Base Case</strong> · probability band ~45–60%</summary>
+<summary>⚖️ <strong>x₂ = Evidence-Building Base Case</strong> · probability band ~45–60%</summary>
 
 <br/>
 
-You keep the job and build nights and weekends. Progress is slower but every assumption gets tested with someone else paying your rent.
+You keep the job and build nights and weekends. Progress is slower, but every assumption gets tested while someone else pays your rent.
 
 | Scorecard | Rating |
 |---|---|
 | Financial trajectory | 🟢 Stable, savings grow to 11 months |
 | Reversibility | 🟢 High: nothing burned, all doors open |
-| Identity alignment | 🟡 Medium: "founder someday" itch persists |
+| Identity alignment | 🟡 Medium: the "founder someday" itch persists |
 | Hidden tax | Energy debt: ~20 evening hours/week for 6 months |
 
 </details>
 
 <details>
-<summary>🌪️ <strong>FUTURE 3 of 3: Runway Compression Stress Case</strong> · probability band ~20–30%</summary>
+<summary>🌪️ <strong>x₃ = Runway Compression Stress Case</strong> · probability band ~20–30%</summary>
 
 <br/>
 
@@ -88,7 +110,7 @@ You quit, the first idea misses, a hiring downturn stretches re-entry to 5 month
 </details>
 
 <details>
-<summary>🕸️ <strong>What ripples outward</strong> · second and third-order effects</summary>
+<summary>🕸️ <strong>What x multiplies into</strong> · second and third-order effects</summary>
 
 <br/>
 
@@ -99,7 +121,7 @@ You quit, the first idea misses, a hiring downturn stretches re-entry to 5 month
 </details>
 
 <details>
-<summary>🦢 <strong>The black swan nobody priced in</strong></summary>
+<summary>🦢 <strong>The x nobody put in the equation</strong> · black swan</summary>
 
 <br/>
 
@@ -109,7 +131,7 @@ A foundation-model release makes the startup's core feature a commodity. Probabi
 </details>
 
 <details>
-<summary>🧪 <strong>The 30-day experiment that beats deciding today</strong></summary>
+<summary>🧪 <strong>Don't pick a root. Test one.</strong> · the 30-day experiment</summary>
 
 <br/>
 
@@ -122,40 +144,44 @@ Don't choose a future. **Rent one.**
 </details>
 
 <details>
-<summary>📜 <strong>Final memo</strong> · open this last</summary>
+<summary>📜 <strong>The worked solution</strong> · open this last</summary>
 
 <br/>
 
-> **Recommendation: Evidence-Building Base Case, with the 30-day experiment as a forcing function.**
-> The optimistic branch is *available later*; the stress case is only avoidable *now*. Reversibility asymmetry decides it, not pessimism.
+> **Recommendation: x₂, the Evidence-Building Base Case, with the 30-day experiment as a forcing function.**
+> x₁ stays *available later*; x₃ is only avoidable *now*. Reversibility asymmetry decides it, not pessimism.
 >
 > Uncertainty: bands, not point estimates. Confidence: moderate. Grounding: cited from the indexed evidence docs.
+>
+> 🟢 **Grounded vs 🟡 Unverified:** every assumption and risk carries a badge. Claims backed by a Foundry IQ source show **Grounded** with the citation; claims with no support are marked **Unverified** and the agent abstains rather than asserting them. The black-swan risk stays unverified *on purpose* — speculation is labeled as speculation.
 >
 > ⚠️ Hxrizxn is decision *support*, not a financial advisor, therapist, or lawyer. High-stakes domains get explicit boundaries, automatically.
 
 </details>
 
-That whole argument, eleven agents, full trace, took about a minute against live Azure OpenAI. Now meet the agents that had it.
+That whole argument, eleven agents, full trace, took about a minute against live Azure OpenAI. Now meet the solvers.
+
+> 💬 **Not just business decisions.** The same eleven agents reason through *human* dilemmas with the same rigor. Feed Hxrizxn "should I be honest with my partner about an overlapping relationship?" and it surfaces emotional backlash, hidden resentment, isolation risk, and the value of taking responsibility — each grounded in relationship decision-science or honestly flagged as uncertain, with the Safety & Boundary agent watching for genuine wellbeing risk. One engine, a $900k contract and a heartbreak, both answered with evidence and humility.
 
 ---
 
-## 🧠 The war room: 11 agents, one decision
+## 🧠 Eleven solvers, one equation
 
 Every step is a real, observable workflow node with typed Pydantic contracts, persisted traces, and per-agent latency shown in the UI's **"Behind the scenes"** panel. No hidden chain-of-thought theater: you see *who* concluded *what*, and how long it took.
 
-| # | Agent | The question it exists to answer |
-|---|-------|----------------------------------|
-| 1 | 🖼️ Decision Framing | What are you *actually* deciding? Goals, fears, constraints, options. |
-| 2 | 📚 Evidence Grounding | What do the documents say? Retrieval + citations via Azure AI Search. |
-| 3 | ⛏️ Assumption Miner | What are you taking for granted without noticing? |
-| 4 | 🔱 Scenario Lattice | What plausible futures exist? Optimistic / base / stress, with scorecards. |
-| 5 | 🕸️ Ripple Effects | What happens after what happens? 2nd/3rd-order effects across six life domains. |
-| 6 | ↩️ Regret & Reversibility | Can you undo it? Will you wish you had? Lock-in and undo-cost scoring. |
-| 7 | 🦢 Black Swan | Which low-probability event breaks everything, and how would you detect it early? |
-| 8 | 👵 Future Self | What does the 5-years-out version of you think of this? |
-| 9 | 🧪 Experiment Design | What is the cheapest reversible test that buys real evidence? |
-| 10 | 🛡️ Safety & Boundary | Should an AI even be weighing in here? Pure rule checks, zero model calls, and the power to abort the run. |
-| 11 | ✍️ Recommendation Composer | The final memo: verdict, uncertainty bands, citations, disclaimers. |
+| # | Agent | The x it solves |
+|---|-------|-----------------|
+| 1 | 🖼️ Decision Framing | Turns a messy story into a solvable equation: goals, fears, constraints, options. |
+| 2 | 📚 Evidence Grounding | Replaces guessed constants with cited evidence, via Azure AI Search / Foundry IQ. Every downstream claim is tagged **grounded** (with its source) or **unverified** — cite-or-abstain, not confident guessing. |
+| 3 | ⛏️ Assumption Miner | Finds the variables you've been treating as constants. |
+| 4 | 🔱 Scenario Lattice | Computes the roots: optimistic / base / stress futures, with scorecards. |
+| 5 | 🕸️ Ripple Effects | Multiplies x outward: 2nd/3rd-order effects across six life domains. |
+| 6 | ↩️ Regret & Reversibility | Measures how permanent each root is, and what undo actually costs. |
+| 7 | 🦢 Black Swan | Hunts the term that breaks the equation, then plants early-warning tripwires. |
+| 8 | 👵 Future Self | Checks the solution against the one reviewer who matters: you, five years out. |
+| 9 | 🧪 Experiment Design | Designs the cheapest reversible test that pins down the biggest unknown. |
+| 10 | 🛡️ Safety & Boundary | Decides whether an AI should even be solving this. Pure rule checks, zero model calls, and the power to abort the run. |
+| 11 | ✍️ Recommendation Composer | Writes the worked solution: memo, uncertainty bands, citations, disclaimers. |
 
 > 🔎 Design choice worth noticing: the Safety & Boundary agent **deliberately has no fallback**. If its checks cannot run, the pipeline stops rather than degrades. Some agents should fail loudly.
 
@@ -205,6 +231,8 @@ flowchart TD
 ```
 
 **HORIZON-X**, the method behind the name: **H**ear the context · **O**rganize goals and constraints · **R**ender plausible futures · **I**dentify ripple effects · **Z**oom into black swans · **O**ptimize for reversibility · **N**ext-step safe experiments · e**X**plain with evidence and uncertainty.
+
+The X at the end of the method isn't decoration. It's the whole point.
 
 ---
 
@@ -261,12 +289,14 @@ python scripts/run_evals.py           # 5 golden decision cases, avg score 9.6/1
 
 ---
 
-## 🛡️ Reliability & safety, by construction
+## 🛡️ No false o's: reliability & safety by construction
 
+The fastest way to hurt someone with a decision tool is to hand them an o that should have been an x: a confident answer where an open question belonged. So:
+
+- **Probability bands, never point estimates.** The product refuses to round your future to two decimal places.
 - **Typed contracts everywhere.** Every agent boundary is a Pydantic v2 schema; malformed output triggers a JSON-repair retry, then graceful per-agent degradation instead of a dead run.
 - **High-stakes domain detection.** Medical, legal, immigration, mental-health, and large-financial decisions get explicit boundary language injected automatically.
 - **Prompt-injection sanitizer.** Retrieved document text is scrubbed of instruction-like strings before any agent reads it.
-- **No false precision.** Probability *bands* and uncertainty notes, never confident point estimates about your life.
 - **Defense in depth.** Upload validation, PII redaction, rate limiting, secure headers, secrets only in env/Container App secrets.
 - **Observable, not mystical.** Persisted agent traces + the live per-agent latency panel; transparency without exposing chain-of-thought.
 
@@ -278,10 +308,10 @@ python scripts/run_evals.py           # 5 golden decision cases, avg score 9.6/1
 |---|---|---|
 | Accuracy & relevance | 20% | Reasoning Agents track: 11-agent multi-step pipeline on Microsoft Agent Framework, Azure OpenAI, Azure AI Search grounding with citations. |
 | Reasoning & multi-step thinking | 20% | Frame → ground → mine assumptions → render futures → ripple → regret → black swan → experiment → safety gate → memo. Each step persisted and inspectable. |
-| Creativity & originality | 15% | A decision *simulator*, not a chatbot: futures with scorecards, regret modeling, black-swan tripwires, and a rentable 30-day experiment instead of advice. |
-| UX & presentation | 15% | Fluent-2-styled Next.js app, scenario lattice and agent-trace visualizations, decision memo export, this README runs a simulation. |
+| Creativity & originality | 15% | A decision *simulator* whose entire concept fits inside its name: two o's traded for x's. Futures with scorecards, regret modeling, black-swan tripwires, a rentable 30-day experiment. |
+| UX & presentation | 15% | Fluent-2-styled Next.js app, scenario lattice and agent-trace visualizations, decision memo export, and a README that runs a simulation. |
 | Reliability & safety | 20% | Typed contracts, JSON-repair retries, deterministic demo mode, injection sanitizer, abort-don't-degrade safety gate, 13 API tests + e2e + eval harness. |
-| Community vote | 10% | Everyone has a decision they're afraid of. Bring yours: the live app is one click away. |
+| Community vote | 10% | Everyone has an x they're afraid to solve. Bring yours: the live app is one click away. |
 
 ---
 
@@ -305,9 +335,9 @@ Deep dives: [architecture](docs/architecture.md) · [agents](docs/agents.md) · 
 
 ---
 
-## 🔍 What we don't claim (yet)
+## 🔍 The x's we haven't solved yet
 
-Transparency beats polish. Current edges, stated plainly:
+A project about honest uncertainty had better be honest about its own. Current open variables, stated plainly:
 
 - **Auth** is demo-grade; Microsoft Entra / OAuth is a designed-for but unbuilt extension.
 - **User uploads** are stored and validated but not yet auto-indexed into the search index; grounding currently runs on the curated evidence set.
@@ -325,4 +355,8 @@ We follow the [Official Rules](https://github.com/microsoft/Agents-League-AISF-R
 
 ---
 
-<p align="center"><strong>🔭 The future isn't a fact. It's a lattice. Come look at yours.</strong></p>
+<p align="center">
+  <strong>An o is a future you've stopped questioning.<br/>An x is a future you can still choose.</strong>
+</p>
+
+<p align="center">🔭 <strong>Solve for x, before life solves it for you.</strong></p>
