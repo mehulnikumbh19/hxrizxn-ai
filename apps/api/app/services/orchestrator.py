@@ -112,8 +112,13 @@ def _run_agent(
         row.output_json = {"error": str(exc)}
         raise
     finally:
+        elapsed_ms = (perf_counter() - timer) * 1000
         row.completed_at = _utcnow()
-        row.latency_ms = int((perf_counter() - timer) * 1000)
+        # Round rather than truncate: int() floors, so any agent finishing in
+        # under 1ms (e.g. the deterministic mock fallback) was being recorded as
+        # 0ms. Floor at 1ms for any agent that actually executed so a genuinely
+        # fast run is never indistinguishable from "never measured".
+        row.latency_ms = max(1, round(elapsed_ms))
         db.add(row)
         db.commit()
 
@@ -399,8 +404,7 @@ class HorizonXWorkflow:
         )
         db.add(
             FinalRecommendationDB(
-                case_id=case.id,
-                recommendation_summary=memo.recommendation_summary,
+                case_id=case.id,                recommendation_summary=memo.recommendation_summary,
                 rationale=memo.rationale,
                 uncertainty_notes=memo.uncertainty_notes,
                 disclaimers=memo.disclaimers,
@@ -410,4 +414,5 @@ class HorizonXWorkflow:
         case.updated_at = _utcnow()
         db.add(case)
         db.commit()
+
 

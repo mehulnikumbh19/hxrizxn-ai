@@ -1,9 +1,18 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+# Resolve the repo-root .env by absolute path so settings load correctly no
+# matter what working directory the API process starts from (e.g. uvicorn run
+# from apps/api). A relative env_file='.env' silently falls back to defaults
+# (demo_mode=True) when cwd != repo root, forcing the whole app into mock mode.
+_REPO_ROOT = Path(__file__).resolve().parents[4]
+_ENV_FILE = _REPO_ROOT / ".env"
 
 
 class Settings(BaseSettings):
@@ -28,7 +37,7 @@ class Settings(BaseSettings):
     azure_storage_connection_string: str | None = None
     azure_blob_container: str = "uploads"
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=str(_ENV_FILE), extra="ignore")
 
     @property
     def cors_origins(self) -> list[str]:

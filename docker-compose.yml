@@ -18,11 +18,22 @@ services:
   api:
     build:
       context: ./apps/api
+    env_file:
+      - .env
     environment:
       APP_ENV: development
-      DEMO_MODE: "true"
+      DEMO_MODE: "false"
       DATABASE_URL: postgresql+psycopg://hxrizxn:hxrizxn@postgres:5432/hxrizxn
       API_CORS_ORIGINS: http://localhost:3000
+      # Model credentials passed through from the host environment / root .env.
+      # Without these the container has no keys and falls back to mock mode even
+      # when DEMO_MODE is false.
+      AZURE_OPENAI_ENDPOINT: ${AZURE_OPENAI_ENDPOINT:-}
+      AZURE_OPENAI_API_KEY: ${AZURE_OPENAI_API_KEY:-}
+      AZURE_OPENAI_DEPLOYMENT: ${AZURE_OPENAI_DEPLOYMENT:-gpt-4.1-mini}
+      AZURE_OPENAI_API_VERSION: ${AZURE_OPENAI_API_VERSION:-2025-04-01-preview}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
     depends_on:
       postgres:
         condition: service_healthy
