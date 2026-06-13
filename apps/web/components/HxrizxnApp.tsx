@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Activity,
   AlertTriangle,
@@ -38,14 +38,14 @@ import { useDecisionStore } from "@/lib/useDecisionStore";
 import type { AnalysisPackage, ScenarioSpec } from "@/lib/types";
 
 const horizonSteps = [
-  ["H", "Hear the decision context"],
-  ["O", "Organize goals and constraints"],
-  ["R", "Render plausible futures"],
-  ["I", "Identify ripple effects"],
-  ["Z", "Zoom into black swans"],
-  ["O", "Optimize reversibility"],
-  ["N", "Next-step experiments"],
-  ["X", "Explain evidence and uncertainty"]
+  ["H", "Hear the mess", "Drop the whole situation in. Half-formed thoughts welcome."],
+  ["O", "Organize the chaos", "Goals, fears, constraints, and all the tiny details pretending not to matter."],
+  ["R", "Render futures", "Best case, base case, stress case. Reality gets a speaking role."],
+  ["I", "Inspect ripple effects", "Money, time, people, energy, reputation. The usual suspects."],
+  ["Z", "Zoom into black swans", "The weird failure modes your optimism skipped."],
+  ["O", "Optimize reversibility", "Find the door you can still walk back through."],
+  ["N", "Name the experiment", "Test the decision before you marry it."],
+  ["X", "Explain the tradeoff", "A memo clear enough to read after sleeping badly."]
 ];
 
 const stepGradients = [
@@ -90,8 +90,8 @@ const agentBlurbs = [
   "Branching your future into optimistic, base and stress scenarios.",
   "Tracing how this choice ripples across money, career, relationships and health.",
   "Asking the hard question: if this goes wrong, how easily can you undo it?",
-  "Stress-testing the plan against rare but devastating surprises.",
-  "Consulting the you of five years from now about regret and pride.",
+  "Looking for the weird, unlikely disasters your optimism conveniently forgot to mention.",
+  "Calling up your future self to ask how this one actually turned out.",
   "Designing a small, cheap, reversible experiment to run before you leap.",
   "Checking guardrails: budget limits, time limits and personal boundaries.",
   "Composing the final memo: recommendation, evidence and honest uncertainty."
@@ -159,23 +159,6 @@ export function HxrizxnApp() {
       const timer = window.setTimeout(() => setLoadingLabel(label), intervalMs * index);
       loadingTimers.current.push(timer);
     });
-  }
-
-  async function runDemo() {
-    setError(null);
-    setIsFallbackDemo(false);
-    setScreen("loading");
-    startLoadingSequence();
-    try {
-      const data = await fetchDemoPackage();
-      clearLoadingTimers();
-      setPackageData(data);
-      setScreen("comparison");
-    } catch (err) {
-      clearLoadingTimers();
-      setError(err instanceof Error ? err.message : "Analysis failed");
-      setScreen("intake");
-    }
   }
 
   async function runCustom() {
@@ -270,40 +253,48 @@ export function HxrizxnApp() {
         </div>
       )}
 
-      {screen === "landing" && (
-        <Landing
-          runDemo={runDemo}
-          openIntake={() => setScreen("intake")}
-          startWith={(p) => {
-            setPrompt(p);
-            setScreen("intake");
-          }}
-        />
-      )}
-      {screen === "intake" && (
-        <Intake
-          prompt={prompt}
-          setPrompt={setPrompt}
-          goals={goals}
-          setGoals={setGoals}
-          fears={fears}
-          setFears={setFears}
-          moneyLimit={moneyLimit}
-          setMoneyLimit={setMoneyLimit}
-          timeHorizon={timeHorizon}
-          setTimeHorizon={setTimeHorizon}
-          runCustom={runCustom}
-          runDemo={runDemo}
-          error={error}
-        />
-      )}
-      {screen === "loading" && <Loading label={loadingLabel} elapsedSec={loadingElapsedSec} />}
-      {packageData && screen === "comparison" && (
-        <Comparison data={packageData} setScreen={setScreen} />
-      )}
-      {packageData && screen === "ripple" && <Ripple data={packageData} setScreen={setScreen} />}
-      {packageData && screen === "experiment" && <Experiment data={packageData} setScreen={setScreen} />}
-      {packageData && screen === "memo" && <Memo data={packageData} setScreen={setScreen} />}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={screen}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.2, ease: [0, 0, 0, 1] }}
+        >
+          {screen === "landing" && (
+            <Landing
+              openIntake={() => setScreen("intake")}
+              startWith={(p) => {
+                setPrompt(p);
+                setScreen("intake");
+              }}
+            />
+          )}
+          {screen === "intake" && (
+            <Intake
+              prompt={prompt}
+              setPrompt={setPrompt}
+              goals={goals}
+              setGoals={setGoals}
+              fears={fears}
+              setFears={setFears}
+              moneyLimit={moneyLimit}
+              setMoneyLimit={setMoneyLimit}
+              timeHorizon={timeHorizon}
+              setTimeHorizon={setTimeHorizon}
+              runCustom={runCustom}
+              error={error}
+            />
+          )}
+          {screen === "loading" && <Loading label={loadingLabel} elapsedSec={loadingElapsedSec} />}
+          {packageData && screen === "comparison" && (
+            <Comparison data={packageData} setScreen={setScreen} />
+          )}
+          {packageData && screen === "ripple" && <Ripple data={packageData} setScreen={setScreen} />}
+          {packageData && screen === "experiment" && <Experiment data={packageData} setScreen={setScreen} />}
+          {packageData && screen === "memo" && <Memo data={packageData} setScreen={setScreen} />}
+        </motion.div>
+      </AnimatePresence>
     </main>
   );
 }
@@ -315,16 +306,14 @@ export function HxrizxnApp() {
 const landingQuickPicks = [
   "Should I quit my job to start a startup?",
   "Should I move abroad for a new role?",
-  "Should I go back to grad school?",
+  "Do I tell them how I feel, or let it go?",
   "Should I buy a house now or keep renting?"
 ];
 
 function Landing({
-  runDemo,
   openIntake,
   startWith
 }: {
-  runDemo: () => void;
   openIntake: () => void;
   startWith: (prompt: string) => void;
 }) {
@@ -356,7 +345,7 @@ function Landing({
           className="inline-flex items-center gap-2 rounded-full border border-[var(--colorNeutralStrokeSubtle)] bg-white/70 px-3.5 py-1.5 text-[12px] font-medium text-[var(--colorNeutralForeground3)] shadow-[var(--shadow2)] backdrop-blur-xl"
         >
           <Sparkles size={13} className="text-[var(--colorAccentIndigo)]" />
-          Multi-agent decision intelligence
+          Structured thinking for messy decisions
         </motion.div>
 
         <motion.h1
@@ -375,8 +364,8 @@ function Landing({
           transition={{ duration: 0.45, delay: 0.12, ease: [0, 0, 0, 1] }}
           className="mx-auto mt-5 max-w-xl text-[17px] leading-8 text-[var(--colorNeutralForeground3)]"
         >
-          HORIZON-X maps scenarios, ripple effects, reversibility, regret and safer
-          experiments, so you can pressure-test a life-changing decision before you commit.
+          For startup pivots, rent decisions, relationship chaos, and other events your
+          group chat is not qualified to solve.
         </motion.p>
 
         {/* Refined prompt box */}
@@ -401,7 +390,7 @@ function Landing({
               onClick={submit}
               className="btn-gradient focus-ring inline-flex shrink-0 items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-semibold"
             >
-              Analyze <ArrowRight size={15} />
+              Analyze <ArrowRight size={15} className="btn-arrow" />
             </button>
           </div>
 
@@ -415,12 +404,6 @@ function Landing({
                 {q}
               </button>
             ))}
-            <button
-              onClick={runDemo}
-              className="focus-ring inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12.5px] font-semibold text-[var(--colorBrandForeground1)] transition-colors hover:text-[var(--colorBrandForeground2)]"
-            >
-              <Sparkles size={13} /> Try a sample
-            </button>
           </div>
         </motion.div>
       </div>
@@ -433,7 +416,7 @@ function Landing({
         className="relative mx-auto mt-16 max-w-5xl"
       >
         <div aria-hidden className="glow left-1/2 top-10 h-[260px] w-[78%] -translate-x-1/2" style={{ background: "radial-gradient(circle, rgba(75,84,200,0.14), transparent 70%)" }} />
-        <div className="panel relative overflow-hidden p-2.5">
+        <div className="panel relative overflow-hidden p-2.5 float-preview">
           <div className="surface-inset flex items-center gap-2 px-4 py-2.5">
             <span className="flex gap-1.5">
               <span className="h-2.5 w-2.5 rounded-full bg-[#e7e5df]" />
@@ -444,15 +427,27 @@ function Landing({
           </div>
           <div className="grid gap-2.5 p-2.5 sm:grid-cols-2 lg:grid-cols-4">
             {credibilityItems.map(({ label, icon: Icon, fg, bg }, i) => (
-              <div key={label} className="surface-inset bg-white p-4">
+              <motion.div
+                key={label}
+                className="surface-inset bg-white p-4"
+                whileHover={{ scale: 1.03, y: -2 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              >
                 <span className="mb-3 flex h-9 w-9 items-center justify-center rounded-[10px]" style={{ background: bg, color: fg }}>
                   <Icon size={18} />
                 </span>
                 <div className="text-[13.5px] font-semibold">{label}</div>
                 <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-[rgba(0,0,0,0.06)]">
-                  <div className="h-full rounded-full" style={{ width: ["72%", "88%", "64%", "94%"][i], background: fg }} />
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ background: fg }}
+                    initial={{ width: "0%" }}
+                    whileInView={{ width: ["72%", "88%", "64%", "94%"][i] }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{ duration: 0.9, delay: 0.15 + i * 0.08, ease: [0, 0, 0, 1] }}
+                  />
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -463,22 +458,27 @@ function Landing({
         <div className="text-center">
           <div className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[var(--colorAccentIndigo)]">The method</div>
           <h2 className="mx-auto mt-3 max-w-2xl text-2xl font-bold tracking-tight md:text-[32px]">
-            Eight steps from a tangled choice to one clear next move
+            For decisions too messy for a pros-and-cons list
           </h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-[var(--colorNeutralForeground3)] md:text-[15px]">
+            Hxrizxn breaks a decision into what you want, what you fear, what could happen,
+            what could backfire, and what you can test before making the expensive version
+            of the mistake.
+          </p>
         </div>
         <div className="mt-10 grid gap-3 sm:grid-cols-2 md:grid-cols-4">
-          {horizonSteps.map(([letter, text], index) => (
+          {horizonSteps.map(([letter, label, text], index) => (
             <motion.div
-              key={`${letter}-${text}`}
+              key={`${letter}-${label}`}
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{ delay: index * 0.05, duration: 0.35, ease: [0, 0, 0, 1] }}
-              className="panel panel--lift p-5"
+              className="panel panel--lift group p-5"
             >
               <div className="flex items-center justify-between">
                 <span
-                  className="flex h-10 w-10 items-center justify-center rounded-xl text-base font-bold text-white shadow-[var(--shadow4)]"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl text-base font-bold text-white shadow-[var(--shadow4)] transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
                   style={{ background: stepGradients[index % stepGradients.length] }}
                 >
                   {letter}
@@ -487,7 +487,8 @@ function Landing({
                   STEP {String(index + 1).padStart(2, "0")}
                 </span>
               </div>
-              <div className="mt-4 text-sm leading-6 text-[var(--colorNeutralForeground2)]">{text}</div>
+              <div className="mt-4 text-sm font-bold tracking-tight text-[var(--colorNeutralForeground1)]">{label}</div>
+              <div className="mt-1.5 text-sm leading-6 text-[var(--colorNeutralForeground3)]">{text}</div>
             </motion.div>
           ))}
         </div>
@@ -496,7 +497,7 @@ function Landing({
       {/* Disclaimer */}
       <div className="mx-auto mt-14 flex max-w-xl items-center justify-center gap-2 rounded-full border border-[var(--colorNeutralStrokeSubtle)] bg-white/60 px-4 py-2 text-center text-xs text-[var(--colorNeutralForeground3)] backdrop-blur">
         <ShieldCheck size={14} className="shrink-0 text-[var(--colorBrandForeground1)]" />
-        Hxrizxn AI is decision support, not a licensed professional.
+        Hxrizxn helps you think clearly. It is not a therapist, lawyer, or financial advisor.
       </div>
     </section>
   );
@@ -555,7 +556,6 @@ function Intake({
   timeHorizon,
   setTimeHorizon,
   runCustom,
-  runDemo,
   error
 }: {
   prompt: string;
@@ -569,7 +569,6 @@ function Intake({
   timeHorizon: number;
   setTimeHorizon: (value: number) => void;
   runCustom: () => void;
-  runDemo: () => void;
   error: string | null;
 }) {
   const sampleDecisions = [
@@ -612,6 +611,14 @@ function Intake({
       fears: "starting from scratch, ageism, job search fatigue",
       moneyLimit: 6,
       timeHorizon: 12
+    },
+    {
+      label: "Should I tell them how I feel?",
+      prompt: "I've developed feelings for a close friend and I'm not sure whether to tell them. Things are good between us right now, and I'm worried that saying something could change the friendship for good, but staying quiet feels like it's slowly costing me too.",
+      goals: "honesty, emotional clarity, preserving the friendship if possible",
+      fears: "rejection, awkwardness, losing the friendship entirely",
+      moneyLimit: 1,
+      timeHorizon: 3
     }
   ];
 
@@ -670,13 +677,7 @@ function Intake({
             onClick={runCustom}
             className="btn-gradient focus-ring inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold"
           >
-            Analyze Decision <ArrowRight size={16} />
-          </button>
-          <button
-            onClick={runDemo}
-            className="btn-neutral focus-ring rounded-full px-5 py-2.5 text-sm font-semibold"
-          >
-            Try Sample Decision
+            Analyze Decision <ArrowRight size={16} className="btn-arrow" />
           </button>
           <button
             type="button"
@@ -749,10 +750,18 @@ function Intake({
 const RING_RADIUS = 56;
 const RING_CIRC = 2 * Math.PI * RING_RADIUS;
 
+const loadingQuips = [
+  "Eleven agents are currently debating your future. Give them a moment.",
+  "Separating real risks from the panic your brain invented at 2 AM.",
+  "Checking the upside, downside, and the 'what was I thinking' scenario.",
+  "Running the scenarios your group chat would've just said 'follow your heart' about."
+];
+
 function Loading({ label, elapsedSec }: { label: string; elapsedSec: number }) {
   const agents = agentLabels;
   const activeIndex = Math.max(0, agents.indexOf(label));
   const progress = (activeIndex + 1) / agents.length;
+  const quipIndex = Math.floor(elapsedSec / 15) % loadingQuips.length;
 
   return (
     <section className="mx-auto max-w-5xl px-6 pb-20 pt-12">
@@ -777,9 +786,15 @@ function Loading({ label, elapsedSec }: { label: string; elapsedSec: number }) {
         </div>
 
         <h2 className="relative mt-3 text-[28px] font-bold leading-9 tracking-tight">HORIZON-X analysis running</h2>
-        <p className="relative mt-2 max-w-2xl text-sm leading-6 text-[var(--colorNeutralForeground3)]">
-          Live Azure analysis can take about one to two minutes while each agent generates and validates structured output.
-        </p>
+        <motion.p
+          key={quipIndex}
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: [0, 0, 0, 1] }}
+          className="relative mt-2 max-w-2xl text-sm leading-6 text-[var(--colorNeutralForeground3)]"
+        >
+          {loadingQuips[quipIndex]}
+        </motion.p>
 
         <div className="relative mt-10 grid items-center gap-10 md:grid-cols-[auto_1fr]">
           {/* Progress ring */}
@@ -825,7 +840,11 @@ function Loading({ label, elapsedSec }: { label: string; elapsedSec: number }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, ease: [0, 0, 0, 1] }}
             >
-              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--colorAccentPurple)]">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] accent-purple-text">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full rounded-full opacity-60 animate-ping accent-purple-bg" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full accent-purple-bg" />
+                </span>
                 Now running
               </div>
               <div className="mt-1.5 text-xl font-bold tracking-tight md:text-2xl">{label}</div>
@@ -999,22 +1018,40 @@ function Ripple({ data, setScreen }: { data: AnalysisPackage; setScreen: (screen
       </div>
 
       <div className="grid gap-5 lg:grid-cols-2">
-        <div className="panel p-5">
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.4, ease: [0, 0, 0, 1] }}
+          className="panel p-5"
+        >
           <PanelHeader
             title="Where the risks live"
             caption="Each row is a risk, each column one of the three futures. Warmer color = more severe. Blank = not a factor."
           />
           <RiskHeatmap data={data} />
-        </div>
-        <div className="panel p-5">
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.4, delay: 0.08, ease: [0, 0, 0, 1] }}
+          className="panel p-5"
+        >
           <PanelHeader
             title="How the impact cascades"
             caption="Total impact on each life area. 1st order = direct result, 2nd = knock-on effect, 3rd = long-tail consequence."
           />
           <ImpactStack data={data} />
-        </div>
+        </motion.div>
       </div>
-      <div className="panel mt-5 p-5">
+      <motion.div
+        initial={{ opacity: 0, y: 14 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.4, delay: 0.04, ease: [0, 0, 0, 1] }}
+        className="panel mt-5 p-5"
+      >
         <PanelHeader
           title="Evidence & honesty: what's grounded vs. unverified"
           caption="Every assumption and risk is checked against the Foundry IQ knowledge base. Grounded claims cite a source; the agent abstains on anything it can't verify rather than guessing."
@@ -1023,22 +1060,34 @@ function Ripple({ data, setScreen }: { data: AnalysisPackage; setScreen: (screen
           assumptions={data.framed_decision.grounded_assumptions}
           risks={data.risks}
         />
-      </div>
+      </motion.div>
       <div className="mt-5 grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
-        <div className="panel p-5">
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.4, ease: [0, 0, 0, 1] }}
+          className="panel p-5"
+        >
           <PanelHeader
             title="Can you undo it?"
             caption="Each future plotted by how reversible it is and how many doors it keeps open. Top-right is the sweet spot."
           />
           <OptionalityQuadrant data={data} />
-        </div>
-        <div className="panel p-5">
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.4, delay: 0.08, ease: [0, 0, 0, 1] }}
+          className="panel p-5"
+        >
           <PanelHeader
             title="Behind the scenes"
             caption="The agent pipeline that produced this analysis, with per-agent status and timing."
           />
           <AgentTraceGraph trace={data.trace} />
-        </div>
+        </motion.div>
       </div>
       <NextButton onClick={() => setScreen("experiment")} label="Open Experiment Plan" />
     </section>
@@ -1054,47 +1103,97 @@ function Experiment({ data, setScreen }: { data: AnalysisPackage; setScreen: (sc
   return (
     <section className="mx-auto max-w-7xl px-6 pb-20 pt-8">
       <SectionHeader icon={FlaskConical} eyebrow="Experiment Plan" title={plan.plan_name} />
-      <div className="grid gap-5 lg:grid-cols-[1fr_0.95fr]">
-        <div className="panel p-6">
-          <span className="inline-flex items-center gap-2 rounded-full bg-[var(--colorStatusSuccessBackground)] px-3.5 py-1.5 text-sm font-semibold text-[var(--colorStatusSuccessForeground)]">
-            <CheckCircle2 size={16} />
-            {plan.duration_days} days · reversible
-          </span>
-          <div className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--colorAccentPurple)]">
-            Hypothesis
-          </div>
-          <p className="mt-2 text-base leading-7 text-[var(--colorNeutralForeground2)]">{plan.hypothesis}</p>
 
-          <div className="mt-7 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--colorBrandForeground1)]">
-            Steps
+      {/* Hypothesis hero card */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0, 0, 0, 1] }}
+        className="panel overflow-hidden"
+      >
+        <div className="h-1.5 w-full" style={{ background: "linear-gradient(90deg, #107c10, #54b054)" }} />
+        <div className="flex flex-wrap items-start gap-5 p-6 md:p-7">
+          <span
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white shadow-[var(--shadow8)]"
+            style={{ background: "linear-gradient(135deg, #107c10, #54b054)" }}
+          >
+            <FlaskConical size={22} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--colorAccentPurple)]">
+                Hypothesis
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--colorStatusSuccessBackground)] px-3 py-1 text-[12px] font-semibold text-[var(--colorStatusSuccessForeground)]">
+                <CheckCircle2 size={13} />
+                {plan.duration_days} days · reversible
+              </span>
+            </div>
+            <p className="mt-2.5 max-w-3xl text-[15px] leading-7 text-[var(--colorNeutralForeground2)]">{plan.hypothesis}</p>
           </div>
-          <ol className="mt-4">
+        </div>
+      </motion.div>
+
+      <div className="mt-5 grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
+        {/* Steps timeline */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.06, ease: [0, 0, 0, 1] }}
+          className="panel overflow-hidden"
+        >
+          <div className="flex items-center gap-2.5 border-b border-[rgba(0,0,0,0.05)] px-6 py-4">
+            <span
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-white"
+              style={{ background: "linear-gradient(135deg, #0f6cbd, #5b5fc7)" }}
+            >
+              <Target size={15} />
+            </span>
+            <span className="text-sm font-bold tracking-tight">Action Steps</span>
+            <span className="ml-auto rounded-full border border-[var(--colorNeutralStroke2)] bg-white/70 px-2.5 py-0.5 text-[11px] font-medium text-[var(--colorNeutralForeground3)]">
+              {plan.steps.length} steps
+            </span>
+          </div>
+          <ol className="p-6">
             {plan.steps.map((step, index) => (
-              <li key={step} className="relative flex gap-4 pb-6 last:pb-0">
+              <motion.li
+                key={step}
+                className="relative flex gap-4 pb-7 last:pb-0"
+                initial={{ opacity: 0, x: -10 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-20px" }}
+                transition={{ delay: index * 0.06, duration: 0.35, ease: [0, 0, 0, 1] }}
+              >
                 {index < plan.steps.length - 1 && (
-                  <span aria-hidden className="absolute bottom-0 left-[14px] top-8 w-px bg-[var(--colorNeutralStroke2)]" />
+                  <motion.span
+                    aria-hidden
+                    className="absolute bottom-0 left-[15px] top-9 w-[2px] rounded-full"
+                    style={{ background: "linear-gradient(180deg, rgba(15,108,189,0.25), rgba(91,95,199,0.12))", transformOrigin: "top" }}
+                    initial={{ scaleY: 0 }}
+                    whileInView={{ scaleY: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.06 + 0.15, duration: 0.3, ease: [0, 0, 0, 1] }}
+                  />
                 )}
                 <span
-                  className="z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white shadow-[var(--shadow2)]"
-                  style={{ background: "linear-gradient(135deg, #0f6cbd, #5b5fc7)" }}
+                  className="z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white shadow-[var(--shadow4)]"
+                  style={{ background: stepGradients[index % stepGradients.length] }}
                 >
                   {index + 1}
                 </span>
-                <span className="pt-0.5 text-sm leading-6 text-[var(--colorNeutralForeground2)]">{step}</span>
-              </li>
+                <div className="flex-1 rounded-xl border border-[var(--colorNeutralStrokeSubtle)] bg-white/60 p-3.5 transition-shadow hover:shadow-[var(--shadow4)]">
+                  <span className="text-[13px] leading-6 text-[var(--colorNeutralForeground2)]">{step}</span>
+                </div>
+              </motion.li>
             ))}
           </ol>
-        </div>
-        <div className="grid h-fit gap-5">
-          <div className="panel p-6">
-            <ListBlock title="Success Criteria" items={plan.success_criteria} />
-          </div>
-          <div className="panel p-6">
-            <ListBlock title="Stop Conditions" items={plan.stop_conditions} tone="rose" />
-          </div>
-          <div className="panel p-6">
-            <ListBlock title="What You Will Learn" items={plan.what_you_will_learn} tone="amber" />
-          </div>
+        </motion.div>
+
+        {/* Right column: criteria cards */}
+        <div className="grid h-fit gap-4">
+          <ListCard title="Success Criteria" items={plan.success_criteria} tone="teal" delay={0.08} />
+          <ListCard title="Stop Conditions" items={plan.stop_conditions} tone="rose" delay={0.12} />
+          <ListCard title="What You Will Learn" items={plan.what_you_will_learn} tone="amber" delay={0.16} />
         </div>
       </div>
       <NextButton onClick={() => setScreen("memo")} label="Open Decision Memo" />
@@ -1113,105 +1212,124 @@ function Memo({ data }: { data: AnalysisPackage; setScreen: (screen: "comparison
     <section className="mx-auto max-w-5xl px-6 pb-20 pt-8">
       <SectionHeader icon={ShieldCheck} eyebrow="Decision Memo" title="Proceed via reversible experiment" />
 
-      {/* The recommendation, given headline treatment */}
-      <motion.article
-        initial={{ opacity: 0, y: 12 }}
+      {/* Hero recommendation */}
+      <motion.div
+        initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0, 0, 0, 1] }}
-        className="panel overflow-hidden"
+        transition={{ duration: 0.5, ease: [0, 0, 0, 1] }}
+        className="relative overflow-hidden rounded-2xl border border-[var(--colorNeutralStrokeSubtle)] bg-white p-8 shadow-[var(--shadow8)] md:p-10"
       >
-        <div className="h-1.5 w-full bg-gradient-brand" />
-        <div className="p-6 md:p-8">
-          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--colorAccentPurple)]">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.04]"
+          style={{ background: "radial-gradient(ellipse at 30% 0%, var(--colorBrandBackground), transparent 70%)" }}
+        />
+        <div className="relative">
+          <div className="inline-flex items-center gap-2 rounded-full bg-[rgba(75,79,196,0.08)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--colorAccentIndigo)]">
+            <Target size={12} />
             Recommendation
           </div>
-          <h2 className="mt-3 max-w-3xl text-xl font-bold leading-relaxed tracking-tight md:text-2xl md:leading-9">
+          <h2 className="mt-5 max-w-3xl text-[24px] font-bold leading-[1.4] tracking-tight md:text-[28px]">
             {data.memo.recommendation_summary}
           </h2>
         </div>
-      </motion.article>
+      </motion.div>
 
-      {/* Why, readable column, not a wall */}
-      <div className="mt-5 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
+      {/* Rationale — full width, editorial */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.08, ease: [0, 0, 0, 1] }}
+        className="mt-6 rounded-2xl border border-[var(--colorNeutralStrokeSubtle)] bg-white p-7 shadow-[var(--shadow2)] md:p-9"
+      >
+        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--colorBrandForeground1)]">
+          Why this path
+        </div>
+        <div className="mt-1 mb-5 h-px bg-[var(--colorNeutralStroke2)]" />
+        <p className="max-w-3xl text-[15px] leading-[1.85] text-[var(--colorNeutralForeground2)]">{data.memo.rationale}</p>
+      </motion.div>
+
+      {/* Uncertainty + next move — side by side, equal weight */}
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.07, ease: [0, 0, 0, 1] }}
-          className="panel p-6 md:p-7"
+          transition={{ duration: 0.4, delay: 0.14, ease: [0, 0, 0, 1] }}
+          className="rounded-2xl border border-[var(--colorNeutralStrokeSubtle)] bg-white p-6 shadow-[var(--shadow2)]"
         >
-          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--colorBrandForeground1)]">
-            Why this path
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--colorStatusWarningBackground)] text-[var(--colorStatusWarningForeground)]">
+              <HelpCircle size={17} />
+            </span>
+            <div>
+              <div className="text-[13px] font-bold tracking-tight">Still Unknown</div>
+              <div className="text-[11px] text-[var(--colorNeutralForeground4)]">Open questions</div>
+            </div>
           </div>
-          <p className="mt-3 text-[15px] leading-7 text-[var(--colorNeutralForeground2)]">{data.memo.rationale}</p>
+          <div className="mt-1 mb-4 h-px bg-[var(--colorNeutralStroke2)]" />
+          <p className="text-[13.5px] leading-[1.75] text-[var(--colorNeutralForeground2)]">{data.memo.uncertainty_notes}</p>
         </motion.div>
 
-        <div className="grid h-fit gap-5">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.12, ease: [0, 0, 0, 1] }}
-            className="panel p-5"
-          >
-            <div className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--colorStatusWarningBackground)] text-[var(--colorStatusWarningForeground)]">
-                <HelpCircle size={16} />
-              </span>
-              <span className="text-sm font-bold tracking-tight">Still Unknown</span>
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.18, ease: [0, 0, 0, 1] }}
+          className="rounded-2xl border border-[var(--colorNeutralStrokeSubtle)] bg-white p-6 shadow-[var(--shadow2)]"
+        >
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--colorStatusSuccessBackground)] text-[var(--colorStatusSuccessForeground)]">
+              <ShieldCheck size={17} />
+            </span>
+            <div>
+              <div className="text-[13px] font-bold tracking-tight">Safer Next Move</div>
+              <div className="text-[11px] text-[var(--colorNeutralForeground4)]">Low-risk first step</div>
             </div>
-            <p className="mt-3 text-sm leading-6 text-[var(--colorNeutralForeground2)]">{data.memo.uncertainty_notes}</p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.17, ease: [0, 0, 0, 1] }}
-            className="panel p-5"
-          >
-            <div className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--colorStatusSuccessBackground)] text-[var(--colorStatusSuccessForeground)]">
-                <ShieldCheck size={16} />
-              </span>
-              <span className="text-sm font-bold tracking-tight">Safer Next Move</span>
-            </div>
-            <p className="mt-3 text-sm leading-6 text-[var(--colorNeutralForeground2)]">{data.memo.safer_next_move}</p>
-          </motion.div>
-        </div>
+          </div>
+          <div className="mt-1 mb-4 h-px bg-[var(--colorNeutralStroke2)]" />
+          <p className="text-[13.5px] leading-[1.75] text-[var(--colorNeutralForeground2)]">{data.memo.safer_next_move}</p>
+        </motion.div>
       </div>
 
-      <div className="mt-5 flex items-start gap-3 rounded-xl border border-[rgba(15,108,189,0.18)] bg-[var(--colorStatusInfoBackground)] p-4 text-sm leading-6 text-[var(--colorBrandForeground2)]">
-        <ShieldCheck size={17} className="mt-0.5 shrink-0" />
-        <span>{data.memo.disclaimers}</span>
-      </div>
-
+      {/* Citations */}
       {citations.length > 0 && (
         <div className="mt-8">
-          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--colorAccentPurple)]">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--colorAccentIndigo)]">
             Grounded Evidence
           </div>
           <div className="mt-3 grid gap-3 md:grid-cols-2">
-            {citations.map((citation) => (
-              <div
+            {citations.map((citation, index) => (
+              <motion.div
                 key={`${citation.title}-${citation.source}`}
-                className="panel panel--lift p-4"
+                className="rounded-xl border border-[var(--colorNeutralStrokeSubtle)] bg-white/80 p-4 transition-shadow hover:shadow-[var(--shadow4)]"
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-30px" }}
+                transition={{ delay: index * 0.06, duration: 0.3, ease: [0, 0, 0, 1] }}
               >
-                <div className="text-sm font-bold tracking-tight">{citation.title}</div>
-                <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--colorNeutralForeground4)]">
+                <div className="text-[13px] font-bold tracking-tight">{citation.title}</div>
+                <div className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--colorNeutralForeground4)]">
                   {citation.source}
                 </div>
-                <p className="mt-2 text-sm leading-6 text-[var(--colorNeutralForeground2)]">{citation.snippet}</p>
-              </div>
+                <p className="mt-2.5 text-[12.5px] leading-[1.65] text-[var(--colorNeutralForeground3)]">{citation.snippet}</p>
+              </motion.div>
             ))}
           </div>
         </div>
       )}
 
-      <a
-        className="btn-gradient focus-ring mt-8 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold"
-        href={reportUrl}
-        target="_blank"
-        rel="noreferrer"
-      >
-        Export Report <Download size={16} />
-      </a>
+      {/* Disclaimer + export */}
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--colorNeutralStroke2)] pt-6">
+        <p className="max-w-2xl text-[12px] leading-5 text-[var(--colorNeutralForeground4)]">
+          {data.memo.disclaimers}
+        </p>
+        <a
+          className="btn-gradient focus-ring inline-flex shrink-0 items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold"
+          href={reportUrl}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Export Report <Download size={16} />
+        </a>
+      </div>
     </section>
   );
 }
@@ -1247,37 +1365,65 @@ function SectionHeader({
       </div>
       <div className="inline-flex items-center gap-2 rounded-full border border-[var(--colorNeutralStrokeSubtle)] bg-white/70 px-3.5 py-1.5 text-xs font-medium text-[var(--colorNeutralForeground3)] shadow-[var(--shadow2)]">
         <ShieldCheck size={13} className="text-[var(--colorBrandForeground1)]" />
-        Decision support, not a licensed professional
+        Decision support, not professional advice
       </div>
     </div>
   );
 }
 
-const listTones = {
-  teal: { fg: "#107c10", bg: "#f1faf1", Icon: CheckCircle2 },
-  rose: { fg: "#c50f1f", bg: "#fdf3f4", Icon: XCircle },
-  amber: { fg: "#bc5b09", bg: "#fff9f0", Icon: Lightbulb }
+const listCardTones = {
+  teal: { fg: "#107c10", gradient: "linear-gradient(90deg, #107c10, #54b054)", bg: "#f1faf1", Icon: CheckCircle2 },
+  rose: { fg: "#c50f1f", gradient: "linear-gradient(90deg, #d13438, #ec797d)", bg: "#fdf3f4", Icon: XCircle },
+  amber: { fg: "#bc5b09", gradient: "linear-gradient(90deg, #bc5b09, #e8912d)", bg: "#fff9f0", Icon: Lightbulb }
 };
 
-function ListBlock({ title, items, tone = "teal" }: { title: string; items: string[]; tone?: "teal" | "amber" | "rose" }) {
-  const { fg, bg, Icon } = listTones[tone];
+function ListCard({
+  title,
+  items,
+  tone = "teal",
+  delay = 0,
+}: {
+  title: string;
+  items: string[];
+  tone?: "teal" | "amber" | "rose";
+  delay?: number;
+}) {
+  const { fg, gradient, bg, Icon } = listCardTones[tone];
   return (
-    <div>
-      <div className="flex items-center gap-2.5">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ background: bg, color: fg }}>
-          <Icon size={16} />
-        </span>
-        <h3 className="text-sm font-bold tracking-tight">{title}</h3>
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay, ease: [0, 0, 0, 1] }}
+      className="panel overflow-hidden"
+    >
+      <div className="h-1 w-full" style={{ background: gradient }} />
+      <div className="p-5">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: bg, color: fg }}>
+            <Icon size={17} />
+          </span>
+          <h3 className="text-sm font-bold tracking-tight">{title}</h3>
+          <span className="ml-auto rounded-full border border-[var(--colorNeutralStroke2)] bg-white/70 px-2 py-0.5 text-[10px] font-medium text-[var(--colorNeutralForeground4)]">
+            {items.length}
+          </span>
+        </div>
+        <ul className="mt-4 space-y-2.5">
+          {items.map((item, i) => (
+            <motion.li
+              key={item}
+              className="flex gap-3 rounded-lg border border-[var(--colorNeutralStrokeSubtle)] bg-white/50 p-3 text-[13px] leading-6 text-[var(--colorNeutralForeground2)] transition-shadow hover:shadow-[var(--shadow2)]"
+              initial={{ opacity: 0, y: 6 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-20px" }}
+              transition={{ delay: delay + i * 0.04, duration: 0.3, ease: [0, 0, 0, 1] }}
+            >
+              <Icon size={14} className="mt-0.5 shrink-0" style={{ color: fg }} />
+              <span>{item}</span>
+            </motion.li>
+          ))}
+        </ul>
       </div>
-      <ul className="mt-4 space-y-3">
-        {items.map((item) => (
-          <li key={item} className="flex gap-3 text-sm leading-6 text-[var(--colorNeutralForeground2)]">
-            <Icon size={15} className="mt-1 shrink-0" style={{ color: fg }} />
-            <span>{item}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
+    </motion.div>
   );
 }
 
@@ -1288,7 +1434,7 @@ function NextButton({ onClick, label }: { onClick: () => void; label: string }) 
         onClick={onClick}
         className="btn-gradient focus-ring inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold"
       >
-        {label} <ArrowRight size={16} />
+        {label} <ArrowRight size={16} className="btn-arrow" />
       </button>
     </div>
   );
