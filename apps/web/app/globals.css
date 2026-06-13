@@ -306,6 +306,15 @@ h1, h2, h3 {
   transform: translateY(0);
 }
 
+/* Arrow nudges right on CTA hover */
+.btn-gradient .btn-arrow {
+  transition: transform var(--durationNormal) var(--curveEasyEase);
+}
+
+.btn-gradient:hover .btn-arrow {
+  transform: translateX(2px);
+}
+
 /* Subtle neutral button - Brillance pill */
 .btn-neutral {
   background: var(--colorNeutralBackground3);
@@ -360,8 +369,18 @@ h1, h2, h3 {
   animation: floatYSmall 7s var(--curveEasyEase) infinite;
 }
 
+@keyframes floatPreview {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.float-preview {
+  animation: floatPreview 10s var(--curveEasyEase) infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .float-tile,
+  .float-preview,
   .animate-pulse {
     animation: none;
   }
@@ -407,4 +426,13 @@ h1, h2, h3 {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #bcb9b3;
+}
+
+/* Accent purple helpers (avoid Tailwind arbitrary-value var() class generation) */
+.accent-purple-text {
+  color: var(--colorAccentPurple);
+}
+
+.accent-purple-bg {
+  background-color: var(--colorAccentPurple);
 }

@@ -13,7 +13,13 @@ Hxrizxn AI is a multi-agent decision simulator for high-stakes, one-way-door dec
 
 ## The problem
 
-People — and teams — make irreversible decisions with confident-sounding tools that hallucinate. A single LLM call will happily assert "this will generate $900k" or "your partner will understand" with no evidence and no humility. For decisions that can't be undone, that confidence is the danger.
+Organizations — and people — make irreversible decisions with confident-sounding tools that hallucinate. A single LLM call will happily assert "build it in-house, it'll be cheaper" or "this market will pay off this year" with no evidence and no humility. For decisions that can't be undone, that confidence is the danger.
+
+**Decision domain.** Hxrizxn targets high-stakes **enterprise decisions** first — build-vs-buy, vendor selection and lock-in, hiring and headcount, market entry, strategic bets and capital allocation — each grounded in Foundry IQ or honestly flagged as unverified. The same engine generalizes to personal and even emotional decisions, which proves the reasoning isn't hard-coded to a single scenario.
+
+## Track fit (Reasoning Agents + Microsoft Foundry)
+
+This submission implements the track's core pattern — multi-agent orchestration, **Foundry IQ** grounded-and-cited retrieval (the required Microsoft IQ layer), and production deployment on Azure Container Apps — applied to enterprise and personal **decision intelligence**. The starter scenarios (Enterprise Learning, Role-Play Game) are illustrations of the *kind* of system to build; Hxrizxn brings the same multi-agent + Foundry IQ + deployment pattern to a different, defensible decision-support domain.
 
 ## What makes it a *reasoning* agent (not a wrapper around one call)
 

@@ -141,6 +141,36 @@ class MockKnowledgeProvider(KnowledgeProvider):
             snippet="Ending both relationships to take responsibility and reset is a legitimate path that prioritizes integrity over comfort; it trades short-term loss and being alone for reduced long-term guilt and a cleaner foundation for future relationships.",
             confidence="medium",
         ),
+        Citation(
+            title="Build vs Buy Decision Brief",
+            source="demo-data/build-vs-buy-brief.md",
+            snippet="Build-versus-buy decisions hinge on total cost of ownership, time-to-value, opportunity cost of engineering capacity, and strategic differentiation; building a commodity capability in-house usually costs more and delays the roadmap, while buying a core differentiator can create vendor lock-in.",
+            confidence="high",
+        ),
+        Citation(
+            title="Vendor Selection and Lock-in Note",
+            source="demo-data/vendor-selection-note.md",
+            snippet="Vendor selection should weigh switching costs, lock-in risk, integration effort, and contract exit terms; concentrating on a single vendor for a critical capability is fragile if pricing, reliability, or roadmap diverge from your needs.",
+            confidence="high",
+        ),
+        Citation(
+            title="Hiring and Headcount Decision Note",
+            source="demo-data/hiring-headcount-note.md",
+            snippet="Adding headcount to hit a deadline rarely helps in the near term; onboarding consumes senior capacity and new hires take months to become productive, so treat hiring as a strategic capacity investment, not an immediate fix.",
+            confidence="high",
+        ),
+        Citation(
+            title="Market Entry and Expansion Brief",
+            source="demo-data/market-entry-brief.md",
+            snippet="Market entry and expansion decisions carry high uncertainty: validate demand with a reversible pilot before committing fixed cost, watch for regulatory and localization risk, and define clear stop conditions and a re-entry plan before scaling.",
+            confidence="high",
+        ),
+        Citation(
+            title="Strategic Bet and Capital Allocation Note",
+            source="demo-data/strategic-bet-note.md",
+            snippet="Large strategic bets and capital allocation should be framed as options, not certainties: prefer staged, reversible commitments with milestone gates over one-way-door spend, and size the bet so a wrong call does not threaten the core business.",
+            confidence="high",
+        ),
     ]
 
     def retrieve(self, query: RetrievalQuery) -> list[Citation]:
