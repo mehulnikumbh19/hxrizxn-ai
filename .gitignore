@@ -23,3 +23,10 @@ apps/web/out/
 
 # Local credential / federated-identity config
 fedcred.json
+
+# Internal notes / strategy - not for public repo
+HANDOFF.md
+AGENT_HANDOFF_PROMPT.md
+COMPETITIVE_ANALYSIS.md
+hxrizxn.md
+website design.png
