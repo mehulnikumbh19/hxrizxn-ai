@@ -24,6 +24,25 @@ H x R I Z x N      <- our word: the same line, with the certainties crossed out
 
 ---
 
+## 🧠 Reasoning Agents track — what this is
+
+Hxrizxn is a **multi-agent reasoning system for high-stakes decisions**, built on **Microsoft Foundry** (Azure OpenAI for reasoning, **Foundry IQ** / Azure AI Search for grounded, cited retrieval) and deployed on **Azure Container Apps**. It maps directly to the track's core asks:
+
+| Track requirement | How Hxrizxn meets it |
+|---|---|
+| Multi-step reasoning | 11 specialized agents run a frame → ground → assume → branch → ripple → regret → black-swan → experiment → safety → recommend pipeline. |
+| Orchestration | A HORIZON-X orchestrator routes typed Pydantic contracts between agents, with a safety gate that can abort the run. |
+| **Microsoft IQ integration (core requirement)** | **Foundry IQ** is the grounding layer: agents retrieve from an Azure AI Search knowledge base and **cite the source — or abstain** when nothing supports a claim. |
+| Grounded knowledge with citations | Every assumption and risk carries a **Grounded** badge (with source) or **Unverified** (the agent refuses to assert it). |
+| Production deployment | Containerized API + web, Bicep IaC, GitHub Actions deploy, live on Azure Container Apps. |
+| Synthetic data only | All knowledge docs in `demo-data/` are fabricated and generic (no PII, no real data). |
+
+**Decision domain.** Hxrizxn is built for the decisions organizations and people can't easily undo. It reasons across **enterprise decisions** — build-vs-buy, vendor selection and lock-in, hiring and headcount, market entry, strategic bets and capital allocation — grounding each claim in Foundry IQ or honestly flagging it as unverified. The *same* engine also handles personal and even emotional decisions, which is the proof that the reasoning generalizes rather than being hard-coded to one scenario.
+
+> Note on the starter scenarios: the track offers two example scenarios (Enterprise Learning, Role-Play Game) as illustrations of the *kind* of multi-agent reasoning + Foundry IQ system to build. Hxrizxn implements that same pattern — multi-agent orchestration, grounded cited retrieval, production deployment — applied to enterprise and personal **decision intelligence**.
+
+---
+
 ## ✗ Why the x?
 
 An **o** is a circle. Closed. Finished. Known.
@@ -47,9 +66,9 @@ That is the whole product, hiding in plain sight, inside the name.
 
 ## 🎬 Demo
 
-> 📹 **Demo video:** _[▶ Watch on YouTube](#)_ &nbsp;`<- final link lands here before submission`
+> 📹 **Demo video:** **[▶ Watch on YouTube](https://www.youtube.com/watch?v=9cDaWlPbvJk)**
 >
-> 🌐 **Try it live, right now:** **https://hxrizxn-web.agreeableforest-fd08d701.eastus2.azurecontainerapps.io**
+> 🌐 **Try it live, right now:** [**https://hxrizxn-web.agreeableforest-fd08d701.eastus2.azurecontainerapps.io/**](https://hxrizxn-web.agreeableforest-fd08d701.eastus2.azurecontainerapps.io/)
 >
 > 🩺 API heartbeat: [`/api/health`](https://hxrizxn-api.agreeableforest-fd08d701.eastus2.azurecontainerapps.io/api/health)
 
