@@ -11,8 +11,26 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 # matter what working directory the API process starts from (e.g. uvicorn run
 # from apps/api). A relative env_file='.env' silently falls back to defaults
 # (demo_mode=True) when cwd != repo root, forcing the whole app into mock mode.
-_REPO_ROOT = Path(__file__).resolve().parents[4]
-_ENV_FILE = _REPO_ROOT / ".env"
+#
+# Walk upward from this file to find the directory containing a .env file. This
+# is safe in BOTH local dev (deep path: .../HXRIZXN/apps/api/app/core/config.py)
+# and the Docker container (shallow path: /app/app/core/config.py, no .env at
+# all). A fixed parents[4] crashes on startup in the container because the path
+# is too shallow; this loop never overruns the filesystem root, and when no .env
+# exists (production, where config comes from real env vars) it just resolves to
+# a path that pydantic-settings harmlessly ignores.
+def _find_env_file() -> Path:
+    here = Path(__file__).resolve()
+    for parent in here.parents:
+        candidate = parent / ".env"
+        if candidate.is_file():
+            return candidate
+    # No .env found (e.g. container with env vars): point at repo-ish root,
+    # pydantic-settings tolerates a missing env_file.
+    return here.parents[min(4, len(here.parents) - 1)] / ".env"
+
+
+_ENV_FILE = _find_env_file()
 
 
 class Settings(BaseSettings):
